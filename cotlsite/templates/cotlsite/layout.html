@@ -1,0 +1,51 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width-device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/d592395cca.js" crossorigin="anonymous"></script>
+
+    <title>Children Of The Light</title>
+    <link rel="icon" href="{% static 'cotlsite/images/3-color-aa-symbol.svg' %}" sizes="any" type="image/svg+xml">
+
+	<meta property="og:site_name" content="Children of the Light Website">
+    <meta property="og:url" content="https://cotl.pw">
+    <meta property="og:title" content="Test Page">
+    <meta property="og:description" content="CotL's Website for P&W/Discord identity tracking, tools and events">
+    <meta property="og:type" content="website">
+    <meta name="og:image" itemprop="image" content="{% static 'cotlsite/images/aa-flag.png' %}">
+    <meta content="#f7ddb2" data-react-helmet="true" name="theme-color">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <link rel= "stylesheet" href="{% static 'cotlsite/css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+
+</head>
+<body>
+	<header>
+		<nav>
+            <div class="left-side">
+                <a href="">Home</a>
+            </div>
+            <div class="right-side">
+                <a href="">About Us</a>
+                <a href="">Events</a>
+                <a href="">Tools</a>
+                <a id="login" href="{% url 'discord_login' %}">Login</a>
+            </div>
+        </nav>
+
+        <img id="banners" src="{% static 'cotlsite/images/banners.png' %}" alt="Children of the Light">
+
+	</header>
+	<main>
+        {% block body %}
+        {% endblock %}
+	</main>
+	<footer>
+	</footer>
+</body>
+<script src="{% static 'cotlsite/js/index.js' %}"></script>
+</html>

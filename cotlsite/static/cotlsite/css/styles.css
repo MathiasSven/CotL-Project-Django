@@ -1,0 +1,156 @@
+@charset "utf-8";
+
+@font-face {
+    font-family: 'Trajan Pro Regular';
+    src: url(../fonts/Trajan-Pro-Regular.ttf);
+}
+
+@font-face {
+    font-family: 'Audrey Normal';
+    src: url(../fonts/Audrey-Normal.otf);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:root {
+    --ff-primary: 'Trajan Pro Regular';
+    --ff-secondary: 'Audrey Normal';
+
+    --fw-reg: 300;
+    --fw-bold: 900;
+
+    --clr-light: #fff;
+    --clr-dark: #303030;
+    --clr-accent: #16e0bd;
+
+    --fs-h1: 3 ram;
+    --fs-h2: 2.25rem;
+    --fs-h3: 1.15rem;
+    --fs-body: 1rem;
+
+}
+
+@media (min-width: 800px) {
+    :root {
+        --fs-h1: 4.5 ram;
+        --fs-h2: 3.75rem;
+        --fs-h3: 1.5rem;
+        --fs-body: 1.125rem;
+    }
+}
+
+html {
+    background: url('../images/background.png') no-repeat fixed center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+header {
+
+}
+
+nav {
+    display: flex;
+    font-family: var(--ff-primary);
+    font-size: 28px;
+    justify-content: space-between;
+    margin: 30px;
+}
+
+.left-side > a {
+    color: #830800;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.right-side > a {
+    text-decoration: none;
+    color: #830800;
+    text-decoration: none;
+    transition: color 0.5s;
+    font-weight: bold;
+    padding: 30px;
+    border-bottom: 3px solid transparent;
+    transition: border-bottom 0.5s;
+}
+
+#login {
+    padding: 5px 20px;
+    border-radius: 5px;
+    border: 3px solid #830800;
+}
+
+body {
+
+}
+
+#banners {
+    position: fixed;
+    top: 0;
+    left: 3%;
+}
+
+#aa-symbol {
+    position: absolute;
+    height: 250px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -65%);
+
+}
+
+#children-of-the-light {
+    position: absolute;
+    height: 90px;
+    top: 63%;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+#play-pause-button {
+    background: transparent;
+    border: none !important;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    margin-bottom: 70px;
+    margin-right: 20px;
+    cursor: pointer;
+    font-size: 2em;
+    color: #830800;
+    padding: 1px;
+    outline: none;
+}
+
+#play-button {
+    display: flex;
+}
+
+#play-button:hover {
+    font-weight: 1000;
+}
+
+#pause-button {
+    display: none;
+}
+
+#pause-button:hover {
+    font-weight: 1000;
+}
+
+footer {
+    background: #A57D48;
+    text-align: center;
+    padding: 1.0em 0;
+    font-size: var(--fs-h3);
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}
