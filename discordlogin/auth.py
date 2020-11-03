@@ -9,6 +9,16 @@ class DiscordAuthenticationBackend(BaseBackend):
             print("User was not found. Saving...")
             new_user = User.objects.create_user(user)
             return new_user
+
+        find_user.update(
+            discord_tag=f"{user['username']}#{user['discriminator']}",
+            avatar=user['avatar'],
+            public_flags=user['public_flags'],
+            flags=user['flags'],
+            locale=user['locale'],
+            mfa_enabled=user['mfa_enabled'],
+        )
+
         return find_user
 
     def get_user(self, user_id):
