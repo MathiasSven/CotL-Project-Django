@@ -1,0 +1,40 @@
+{% extends 'cotlsite/layout.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'cotlsite/css/home.css' %}">
+{% endblock %}
+
+{% block header %}
+    <img src="{% static 'cotlsite/images/Lost_Souls_long_png.png' %}" id="banners">
+    <nav>
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Events</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Members</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Tools</a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block body %}
+    <audio id="anthem" hidden>
+        <source src="{% static 'cotlsite/audio/light-from-darkness.mp3' %}" type="audio/mp3">
+    </audio>
+
+    {#    <a href="https://discord.gg/29Ymtz" target="_blank"><img src="{% static 'cotlsite/images/discord-button.png' %}" alt="Discord Button"></a>#}
+
+    <a href="https://politicsandwar.com/alliance/id=7452" target="_blank"><img id="aa-symbol" src="{% static 'cotlsite/images/aa-symbol.png' %}" alt="AA Symbol"></a>
+
+    <img id="children-of-the-light" src="{% static 'cotlsite/images/children-of-the-light.png' %}" alt="Children of the Light">
+
+    <button id="play-pause-button">
+        <span id="play-button"><i class="fas fa-play"></i></span>
+        <span id="pause-button"><i class="fas fa-pause"></i></span>
+    </button>
+{% endblock %}
