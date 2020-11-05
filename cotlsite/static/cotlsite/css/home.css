@@ -1,0 +1,128 @@
+li > a {
+    font-family: var(--ff-primary) !important;
+    font-size: 30px !important;
+    margin: 20px 40px 30px 40px !important;
+    padding: 8px 8px 0 !important;
+    color: #830800;
+    font-weight: bold;
+}
+
+li > a:hover {
+    color: #830800;
+    text-decoration: none !important;
+    border-bottom: 3px solid;
+    transition: border-bottom 0.1s;
+}
+
+#banners {
+    position: absolute;
+    width: 250px;
+    height: 650px;
+    left: 30px;
+    top: -150px;
+    transform: rotate(0.15deg);
+    transition: top 0.3s;
+}
+
+#banners:hover {
+    position: absolute;
+    width: 250px;
+    height: 650px;
+    left: 30px;
+    top: -66px;
+    transform: rotate(0.15deg);
+    transition: top 0.3s;
+}
+
+#aa-symbol {
+    position: absolute;
+    height: 250px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -65%);
+
+}
+
+#aa-symbol:hover {
+    transform: translateX(-50%) translateY(-50%);
+    animation: aa-symbol__rotation__1 1000ms 0ms ease-in-out forwards infinite;
+}
+
+/*.aa-symbol-parent:hover ~ .princess {*/
+/*    position: absolute;*/
+/*    top: 50%;*/
+/*    left: 50%;*/
+
+/*    width: 100%;*/
+/*    height: 100%;*/
+
+/*    transform: translate(-50%, -55%);*/
+
+/*    z-index: -2;*/
+
+/*    background: rgb(255, 252, 223);*/
+/*    background: radial-gradient(circle, rgba(255, 252, 223, 1) 8%, rgba(255, 255, 255, 0) 28%);*/
+
+/*    transition: background 1.3s;*/
+/*}*/
+
+@keyframes aa-symbol__rotation__1 {
+    from {
+        transform: translateX(-50%) translateY(-65%) rotate(0deg);
+    }
+
+    to {
+        transform: translateX(-50%) translateY(-65%) rotate(30deg);
+    }
+}
+
+
+#children-of-the-light {
+    position: absolute;
+    height: 90px;
+    top: 63%;
+    left: 50%;
+    transform: translate(-50%);
+}
+
+#play-pause-button {
+    background: transparent;
+    border: none !important;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    margin-bottom: 70px;
+    margin-right: 20px;
+    cursor: pointer;
+    font-size: 2em;
+    color: #830800;
+    padding: 1px;
+    outline: none;
+}
+
+#play-button {
+    display: flex;
+}
+
+#play-button:hover {
+    font-weight: 1000;
+}
+
+#pause-button {
+    display: none;
+}
+
+#pause-button:hover {
+    font-weight: 1000;
+}
+
+footer {
+    background: #A57D48;
+    text-align: center;
+    padding: 1.0em 0;
+    font-size: var(--fs-h3);
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+}

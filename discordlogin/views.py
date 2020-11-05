@@ -19,6 +19,7 @@ def discord_login(request):
 
 def discord_logout(request):
     logout(request)
+    return redirect("/")
 
 
 @login_required(login_url="/oauth2/login")
@@ -32,7 +33,8 @@ def discord_redirect(request):
     discord_user = authenticate(user=user)
     discord_user = list(discord_user).pop()
     login(request, discord_user)
-    return JsonResponse({"user": user})
+    # return JsonResponse({"user": user})
+    return redirect("/")
 
 
 def exchange_code(code):

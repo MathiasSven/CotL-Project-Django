@@ -54,5 +54,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
+    def username(self):
+        return self.discord_tag.split("#")[0]
+
+    def discriminator(self):
+        return self.discord_tag.split("#")[1]
+
     def __str__(self):
         return '%s (%s)' % (self.discord_tag, self.id)

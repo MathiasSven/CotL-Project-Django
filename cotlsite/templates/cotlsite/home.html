@@ -1,0 +1,51 @@
+{% extends 'cotlsite/layout.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'cotlsite/css/home.css' %}">
+{% endblock %}
+
+{% block header %}
+
+    {% if user.is_authenticated %}
+        <img src="{% static 'cotlsite/images/Blessed_Long.png' %}" id="banners" alt="Banner">
+    {% else %}
+        <img src="{% static 'cotlsite/images/Lost_Souls_long_png.png' %}" id="banners" alt="Banner">
+    {% endif %}
+
+    <nav>
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Events</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Members</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Tools</a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block body %}
+    <audio id="anthem" hidden>
+        <source src="{% static 'cotlsite/audio/light-from-darkness.mp3' %}" type="audio/mp3">
+    </audio>
+
+    {#    <a href="https://discord.gg/29Ymtz" target="_blank"><img src="{% static 'cotlsite/images/discord-button.png' %}" alt="Discord Button"></a>#}
+
+    <a class="aa-symbol-parent" href="https://politicsandwar.com/alliance/id=7452" target="_blank"><img id="aa-symbol" src="{% static 'cotlsite/images/aa-symbol.png' %}" alt="AA Symbol"></a>
+
+{#    <div class="princess"></div>#}
+
+    <img id="children-of-the-light" src="{% static 'cotlsite/images/children-of-the-light.png' %}" alt="Children of the Light">
+
+{#    <iframe src="https://discord.com/widget?id=458692561574297660&theme=dark{% if user.is_authenticated %}&username={{ user.id }}{% endif %}" width="350" height="500" allowtransparency="true" frameborder="0"#}
+{#            sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>#}
+
+    <button id="play-pause-button">
+        <span id="play-button"><i class="fas fa-play"></i></span>
+        <span id="pause-button"><i class="fas fa-pause"></i></span>
+    </button>
+{% endblock %}

@@ -10,7 +10,7 @@
     <title>Children Of The Light</title>
     <link rel="icon" href="{% static 'cotlsite/images/3-color-aa-symbol.svg' %}" sizes="any" type="image/svg+xml">
 
-	<meta property="og:site_name" content="Children of the Light Website">
+    <meta property="og:site_name" content="Children of the Light Website">
     <meta property="og:url" content="https://cotl.pw">
     <meta property="og:title" content="Test Page">
     <meta property="og:description" content="CotL's Website for P&W/Discord identity tracking, tools and events">
@@ -19,32 +19,46 @@
     <meta content="#f7ddb2" data-react-helmet="true" name="theme-color">
     <meta name="twitter:card" content="summary_large_image">
 
-    <link rel= "stylesheet" href="{% static 'cotlsite/css/styles.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="{% static 'cotlsite/css/styles.css' %}">
+    <script src="{% static 'cotlsite/js/layout.js' %}"></script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+          crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
+            crossorigin="anonymous"></script>
+
+    {% block head %}
+    {% endblock %}
 </head>
 <body>
-	<header>
-		<nav>
-            <div class="left-side">
+<header>
+    {% block header %}
+    {% endblock %}
+    <div class="user_handler">
+        {% if user.is_authenticated %}
+            <div class="dropdown mr-1">
+                <img class="dropdown-toggle" src="https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.png" alt="{{ user.discord_tag }}'s Avatar" draggable="false" id="avatar">
+                <div class="avatar_dropdown">
+                    <div>
+                        <p id="logged_as">Logged in as</p>
+                        <p id="discord_tag">{{ user.username }}<span id="discriminator">#{{ user.discriminator }}</span></p>
+                    </div>
+                    <a id="log_out" href="{% url 'discord_logout' %}">Log Out</a>
+                </div>
             </div>
-            <div class="right-side">
-                <a href="">About Us</a>
-                <a href="">Events</a>
-                <a href="">Tools</a>
-                <a id="login" href="{% url 'discord_login' %}">Login</a>
-            </div>
-        </nav>
-
-        <img id="banners" src="{% static 'cotlsite/images/banners.png' %}" alt="Children of the Light">
-
-	</header>
-	<main>
-        {% block body %}
-        {% endblock %}
-	</main>
-	<footer>
-	</footer>
+        {% else %}
+            <button type="button" class="btn btn-outline-primary" id="login" onclick="location.href='{% url 'discord_login' %}'">Login</button>
+        {% endif %}
+    </div>
+</header>
+<main>
+    {% block body %}
+    {% endblock %}
+</main>
+<footer>
+</footer>
 </body>
 <script src="{% static 'cotlsite/js/index.js' %}"></script>
 </html>
