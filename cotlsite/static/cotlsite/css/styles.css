@@ -49,6 +49,8 @@ html {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
+
+    min-width: 1100px;
 }
 
 .user_handler {
@@ -56,10 +58,88 @@ html {
     top: 28px;
     right: 30px;
     transform: translateY(-3px);
+
+    text-align: right;
+}
+
+#avatar {
+    height: 51px;
+    width: 51px;
+    border-radius: 100%;
+    margin-right: 10px;
+}
+
+#avatar:hover {
+    cursor: pointer;
+    opacity: .75;
+}
+
+.avatar_dropdown {
+    /*width: 252px;*/
+    height: 52px;
+    padding: 8px 16px;
+    margin: 10px 10px;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    flex: 1 1 auto;
+
+    background-color: #303030;
+    border-radius: 4px;
+
+    font-family: Whitney, Helvetica Neue, Helvetica, Arial, sans-serif;
+
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition-property: opacity, visibility, transform;
+    transition-duration: .2s, .4s, .4s;
+    transition-delay: 0s, 0s, 0s;
+}
+
+#logged_as {
+    line-height: 16px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #b9bbbe;
+    font-family: inherit;
+    text-align: left;
+
+    margin-bottom: 0;
+    margin-right: 30px;
+}
+
+#discord_tag {
+    text-align: left;
+
+    line-height: 20px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #f6f6f7;
+    margin-bottom: 0;
+    margin-right: 30px;
+}
+
+#discriminator {
+    color: #72767d;
+}
+
+#log_out {
+    margin: 0;
+    padding: 0;
+    outline: 0;
+    color: #f04747;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 400;
+    line-height: 18px;
 }
 
 #login {
-    padding: 0px 20px !important;
+    padding: 0 20px !important;
     border-radius: 7px;
     border: 3px solid #830800;
 
