@@ -7,12 +7,30 @@ from .models import APIKey
 from cotlsite.models import Member, Role
 
 
+# class ApiIO(object):
+#     def __init__(self, _id, name=None, discriminator=None, avatar=None, nick=None):
+#         self.id = _id
+#         self.name = name
+#         self.discriminator = discriminator
+#         self.avatar = avatar
+#         self.nick = nick
+
+
 @csrf_exempt
 def member_join(request):
-    print(request.method)
     if request.method == 'POST':
         if APIKey.check_key(request.headers['X-Api-Key']):
-            # Do stuff with member data
+            member = json.loads(request.body)
+            tmp_member = Member.objects.create(
+                id=member['id'],
+                name=member['name'],
+                discriminator=member['discriminator'],
+                avatar=member['avatar'],
+                nick=member['nick']
+            )
+            for role in member['roles']:
+                tmp_role = Role.objects.get(id=role['id'])
+                tmp_member.roles.add(tmp_role)
             return JsonResponse({
                 "POST": "Successful"
             }, status=201)
@@ -28,10 +46,10 @@ def member_join(request):
 
 @csrf_exempt
 def member_remove(request):
-    print(request.method)
     if request.method == 'DELETE':
         if APIKey.check_key(request.headers['X-Api-Key']):
-            # Do stuff with member data
+            member = json.loads(request.body)
+            Member.objects.get(id=member['id']).delete()
             return JsonResponse({
                 "DELETE": "Successful"
             }, status=200)
@@ -47,10 +65,25 @@ def member_remove(request):
 
 @csrf_exempt
 def member_update(request):
-    print(request.method)
     if request.method == 'PUT':
         if APIKey.check_key(request.headers['X-Api-Key']):
-            # Do stuff with member data
+            member = json.loads(request.body)
+            tmp_member = Member.objects.get(member['id'])
+            tmp_member.roles.clear()
+
+            tmp_member.name = member['name']
+            tmp_member.discriminator = member['discriminator']
+            tmp_member.avatar = member['avatar']
+            tmp_member.nick = member['nick']
+            tmp_member.save()
+            for role in member['roles']:
+                tmp_role, _ = Role.objects.get_or_create(
+                    id=role['id'],
+                    name=role['name'],
+                    position=role['position'],
+                    colour=f"#{hex(role['colour']).lstrip('0x')}"
+                )
+                tmp_member.roles.add(tmp_role)
             return JsonResponse({
                 "POST": "Successful"
             }, status=200)
@@ -66,10 +99,14 @@ def member_update(request):
 
 @csrf_exempt
 def user_update(request):
-    print(request.method)
     if request.method == 'PUT':
         if APIKey.check_key(request.headers['X-Api-Key']):
-            # Do stuff with member data
+            member = json.loads(request.body)
+            tmp_member = Member.objects.get(member['id'])
+            tmp_member.name = member['name']
+            tmp_member.discriminator = member['discriminator']
+            tmp_member.avatar = member['avatar']
+            tmp_member.save()
             return JsonResponse({
                 "POST": "Successful"
             }, status=200)
