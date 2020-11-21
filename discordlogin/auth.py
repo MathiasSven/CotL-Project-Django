@@ -6,7 +6,6 @@ class DiscordAuthenticationBackend(BaseBackend):
     def authenticate(self, request, user):
         find_user = User.objects.filter(id=user['id'])
         if len(find_user) == 0:
-            print("User was not found. Saving...")
             new_user = User.objects.create_user(user)
             return new_user
 
@@ -19,7 +18,7 @@ class DiscordAuthenticationBackend(BaseBackend):
             mfa_enabled=user['mfa_enabled'],
         )
 
-        return find_user
+        return list(find_user).pop()
 
     def get_user(self, user_id):
         try:

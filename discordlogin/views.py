@@ -40,7 +40,7 @@ def discord_redirect(request):
     code = request.GET.get('code')
     user = exchange_code(code)
     discord_user = authenticate(user=user)
-    discord_user = list(discord_user).pop()
+    discord_user = discord_user
     login(request, discord_user)
     # return JsonResponse({"user": user})
     return redirect("/")

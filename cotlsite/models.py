@@ -3,35 +3,46 @@ import requests
 from datetime import datetime
 
 from django.db import models
-from django.conf import settings
 
 from colorfield.fields import ColorField
 from django.db.models.signals import post_save
 
-UserModel = settings.AUTH_USER_MODEL
+from discordlogin.models import User as UserModel
 
 
 class Member(models.Model):
     id = models.BigIntegerField(primary_key=True)
-    name = models.CharField(max_length=32)
-    discriminator = models.CharField(max_length=4)
-    avatar = models.CharField(max_length=100)
+    name = models.CharField(max_length=32, null=True)
+    discriminator = models.CharField(max_length=4, null=True)
+    avatar = models.CharField(max_length=100, null=True)
     nick = models.CharField(max_length=32, null=True)
     roles = models.ManyToManyField('Role')
 
-    user_model = models.ForeignKey(UserModel, on_delete=models.CASCADE, null=True)
-
     @classmethod
-    def post_create(cls, sender, instance, created, *args, **kwargs):
+    def post_login_create(cls, sender, instance, created, *args, **kwargs):
         if created:
-            member_on_login, new = cls.objects.get_or_create(id=instance.id)
-            if new:
-                member_on_login.name = instance.username
-                member_on_login.discriminator = instance.discriminator
-                member_on_login.avatar = instance.avatar
+            try:
+                member_on_login = cls.objects.get(id=instance.id)
+            except cls.DoesNotExist:
+                cls.objects.create(
+                    id=instance.id,
+                    name=instance.username(),
+                    discriminator=instance.discriminator(),
+                    avatar=instance.avatar
+                )
 
-            member_on_login.user_model = instance
-            member_on_login.save()
+    @staticmethod
+    def post_member_save(sender, instance, created, *args, **kwargs):
+        if not created:
+            find_user = UserModel.objects.filter(id=instance.id)
+
+            if len(find_user) == 0:
+                return
+
+            find_user.update(
+                discord_tag=f"{instance.name}#{instance.discriminator}",
+                avatar=instance.avatar,
+            )
 
     def display_name(self):
         if self.nick is None:
@@ -43,8 +54,9 @@ class Member(models.Model):
         return f"{self.name}#{self.discriminator}"
 
 
-# Member User Connector
-post_save.connect(Member.post_create, sender=UserModel)
+# Member User Connectors
+post_save.connect(Member.post_login_create, sender=UserModel)
+post_save.connect(Member.post_member_save, sender=Member)
 
 
 class Role(models.Model):
@@ -67,7 +79,7 @@ class PnWData(models.Model):
     flag_url = models.URLField(null=True)
     date_founded = models.DateTimeField(null=True)
 
-    discord_member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    discord_member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True)
 
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):

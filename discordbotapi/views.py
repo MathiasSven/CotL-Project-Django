@@ -12,13 +12,14 @@ def member_join(request):
     if request.method == 'POST':
         if APIKey.check_key(request.headers['X-Api-Key']):
             member = json.loads(request.body)
+
             tmp_member, new = Member.objects.get_or_create(id=member['id'])
-            tmp_member.save(
-                name=member['name'],
-                discriminator=member['discriminator'],
-                avatar=member['avatar'],
-                nick=member['nick']
-            )
+            tmp_member.name = member['name']
+            tmp_member.discriminator = member['discriminator']
+            tmp_member.avatar = member['avatar']
+            tmp_member.nick = member['nick']
+
+            tmp_member.save()
             for role in member['roles']:
                 tmp_role = Role.objects.get(id=role['id'])
                 tmp_member.roles.add(tmp_role)
