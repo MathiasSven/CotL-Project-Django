@@ -93,8 +93,7 @@ class PnWData(models.Model):
             instance.nation_name = fetched_data['name']
             instance.leader_name = fetched_data['leadername']
             instance.flag_url = fetched_data['flagurl']
-            instance.date_fonded = fetched_data['founded']
-
+            instance.date_founded = datetime.strptime(f"{fetched_data['founded']} +0000", '%Y-%m-%d %H:%M:%S %z')
             instance.save()
 
     def nation_link(self):
