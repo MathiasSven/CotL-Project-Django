@@ -1,16 +1,25 @@
+import configparser
 import os
 import requests
+from pathlib import Path
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout
 
-DISCORD_LOGIN_URI = os.getenv('DISCORD_LOGIN_URI')
-DISCORD_CLIENT_ID = os.getenv('DISCORD_CLIENT_ID')
+BASE_DIR = Path(__file__).resolve().parent.parent
+config = configparser.ConfigParser()
+config.read(f"{BASE_DIR}/config.ini")
+
+DISCORD_CLIENT_ID = config.get("discordlogin", "DISCORD_CLIENT_ID")
+DISCORD_REDIRECT_URI = config.get("discordlogin", "DISCORD_REDIRECT_URI")
+SCOPE = config.get("discordlogin", "SCOPE")
+
+DISCORD_LOGIN_URI = f"https://discord.com/api/oauth2/authorize?client_id={DISCORD_CLIENT_ID}&redirect_uri={DISCORD_REDIRECT_URI}&response_type=code&scope={SCOPE}"
+os.environ['DISCORD_LOGIN_URI'] = DISCORD_LOGIN_URI
+
 DISCORD_CLIENT_SECRET = os.getenv('DISCORD_CLIENT_SECRET')
-DISCORD_REDIRECT_URI = os.getenv('DISCORD_REDIRECT_URI')
-SCOPE = os.getenv('SCOPE')
 
 
 def discord_login(request):
