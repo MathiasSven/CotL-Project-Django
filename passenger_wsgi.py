@@ -1,0 +1,1 @@
+from cotlproject.wsgi import application

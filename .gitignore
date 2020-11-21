@@ -49,7 +49,5 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
 *.sqlite3
-
 config.ini
