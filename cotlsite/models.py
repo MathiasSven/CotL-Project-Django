@@ -92,7 +92,7 @@ class PnWData(models.Model):
 
             instance.nation_name = fetched_data['name']
             instance.leader_name = fetched_data['leadername']
-            instance.flag_url = fetched_data['flag_url']
+            instance.flag_url = fetched_data['flagurl']
             instance.date_fonded = fetched_data['founded']
 
             instance.save()
