@@ -11,4 +11,5 @@ urlpatterns = [
     path("role-remove", views.role_remove, name="role_remove"),
     path("role-update", views.role_update, name="role_update"),
     path("members-bulk", views.members_bulk, name="members_bulk"),
+    path("link-nation", views.link_nation, name="link_nation"),
 ]

@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import APIKey
-from cotlsite.models import Member, Role
+from cotlsite.models import Member, Role, PnWData
 
 
 @csrf_exempt
@@ -12,8 +12,8 @@ def member_join(request):
     if request.method == 'POST':
         if APIKey.check_key(request.headers['X-Api-Key']):
             member = json.loads(request.body)
-            tmp_member = Member.objects.create(
-                id=member['id'],
+            tmp_member, new = Member.objects.get_or_create(id=member['id'])
+            tmp_member.save(
                 name=member['name'],
                 discriminator=member['discriminator'],
                 avatar=member['avatar'],
@@ -201,6 +201,28 @@ def members_bulk(request):
                     )
                     tmp_member.roles.add(tmp_role)
 
+            return JsonResponse({
+                "POST": "Successful"
+            }, status=201)
+        else:
+            return JsonResponse({
+                "error": "Wrong or no API Key provided"
+            }, status=403)
+    else:
+        return JsonResponse({
+            "error": "POST request required."
+        }, status=405)
+
+
+@csrf_exempt
+def link_nation(request):
+    if request.method == 'POST':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            member_to_link = Member.objects.get(id=data['id'])
+            linking_nation, _ = PnWData.objects.get_or_create(nation_id=data['nation_id'])
+            linking_nation.discord_member = member_to_link
+            linking_nation.save()
             return JsonResponse({
                 "POST": "Successful"
             }, status=201)
