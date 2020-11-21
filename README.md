@@ -2,3 +2,5 @@
 [![PyPI - Django Version](https://img.shields.io/pypi/djversions/djangorestframework?color=018B23&style=for-the-badge)](https://www.djangoproject.com/)
 # CotL Project (Django)
 Children of the Light Website using Django and Discord
+
+ENVS: SECRET_KEY, DISCORD_CLIENT_SECRET, PNW_API_KEY

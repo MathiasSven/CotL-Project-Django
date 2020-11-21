@@ -1,0 +1,15 @@
+[settings]
+ALLOWED_HOSTS = []
+
+[database]
+ENGINE =
+NAME =
+USER =
+PASSWORD =
+HOST =
+PORT =
+
+[discordlogin]
+DISCORD_CLIENT_ID =
+DISCORD_REDIRECT_URI =
+SCOPE =
