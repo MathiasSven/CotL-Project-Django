@@ -7,6 +7,7 @@ from .models import APIKey
 from cotlsite.models import Member, Role, PnWData
 
 
+# noinspection DuplicatedCode
 @csrf_exempt
 def member_join(request):
     if request.method == 'POST':
@@ -178,6 +179,7 @@ def role_update(request):
         }, status=405)
 
 
+# noinspection DuplicatedCode
 @csrf_exempt
 def members_bulk(request):
     if request.method == 'POST':
@@ -186,13 +188,12 @@ def members_bulk(request):
             Member.objects.all().delete()
             Role.objects.all().delete()
             for member in data:
-                tmp_member = Member.objects.create(
-                    id=member['id'],
-                    name=member['name'],
-                    discriminator=member['discriminator'],
-                    avatar=member['avatar'],
-                    nick=member['nick']
-                )
+                tmp_member, new = Member.objects.get_or_create(id=member['id'])
+                tmp_member.name = member['name']
+                tmp_member.discriminator = member['discriminator']
+                tmp_member.avatar = member['avatar']
+                tmp_member.nick = member['nick']
+                tmp_member.save()
                 for role in member['roles']:
                     tmp_role, _ = Role.objects.get_or_create(
                         id=role['id'],
