@@ -52,4 +52,4 @@ wheels/
 
 *.sqlite3
 
-**/migrations/**
+config.ini
