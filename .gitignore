@@ -51,3 +51,6 @@ wheels/
 *.egg
 *.sqlite3
 config.ini
+
+tmp/
+public/
