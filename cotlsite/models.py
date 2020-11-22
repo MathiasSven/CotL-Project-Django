@@ -96,12 +96,19 @@ class PnWData(models.Model):
             instance.date_founded = datetime.strptime(f"{fetched_data['founded']} +0000", '%Y-%m-%d %H:%M:%S %z')
             instance.save()
 
+    class Meta:
+        verbose_name = 'PnW Data'
+        verbose_name_plural = 'PnW Profiles'
+
     def nation_link(self):
         return f"https://politicsandwar.com/nation/id={self.nation_id}"
 
     def days_old(self):
         timedelta = datetime.utcnow() - self.date_founded
         return timedelta.days
+
+    def __str__(self):
+        return '%s (%s)' % (self.nation_name, self.nation_id)
 
 
 # PnWData Connector
