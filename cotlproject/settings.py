@@ -97,6 +97,9 @@ DATABASES = {
         'PASSWORD': config.get("database", "PASSWORD"),
         'HOST': config.get("database", "HOST"),
         'PORT': config.get("database", "PORT"),
+        'OPTIONS': {
+            'charset': 'utf8mb4'
+        }
     }
 }
 
