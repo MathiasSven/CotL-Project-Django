@@ -185,7 +185,6 @@ def members_bulk(request):
     if request.method == 'POST':
         if APIKey.check_key(request.headers['X-Api-Key']):
             data = json.loads(request.body)
-            Member.objects.all().delete()
             Role.objects.all().delete()
             for member in data:
                 tmp_member, new = Member.objects.get_or_create(id=member['id'])
@@ -221,7 +220,12 @@ def link_nation(request):
     if request.method == 'POST':
         if APIKey.check_key(request.headers['X-Api-Key']):
             data = json.loads(request.body)
-            member_to_link = Member.objects.get(id=data['id'])
+            try:
+                member_to_link = Member.objects.get(id=data['id'])
+            except Member.DoesNotExist:
+                return JsonResponse({
+                    "error": "Member is not on the database"
+                }, status=500)
             linking_nation, _ = PnWData.objects.get_or_create(nation_id=data['nation_id'])
             linking_nation.discord_member = member_to_link
             linking_nation.save()
