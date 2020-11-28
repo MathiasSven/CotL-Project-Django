@@ -14,8 +14,8 @@ class Member(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=32, null=True)
     discriminator = models.CharField(max_length=4, null=True)
-    avatar = models.CharField(max_length=100, null=True)
-    nick = models.CharField(max_length=32, null=True)
+    avatar = models.CharField(max_length=100, blank=True)
+    nick = models.CharField(max_length=32, blank=True)
     roles = models.ManyToManyField('Role')
 
     @classmethod
