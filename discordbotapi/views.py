@@ -42,7 +42,12 @@ def member_remove(request):
     if request.method == 'PUT':
         if APIKey.check_key(request.headers['X-Api-Key']):
             member = json.loads(request.body)
-            Member.objects.get(id=member['id']).delete()
+            try:
+                Member.objects.get(id=member['id']).delete()
+            except Member.DoesNotExist:
+                return JsonResponse({
+                    "error": "Tried to remove a member that didn't exist"
+                }, status=404)
             return JsonResponse({
                 "PUT": "Member deletion successful"
             }, status=200)
@@ -61,7 +66,12 @@ def member_update(request):
     if request.method == 'PUT':
         if APIKey.check_key(request.headers['X-Api-Key']):
             member = json.loads(request.body)
-            tmp_member = Member.objects.get(id=member['id'])
+            try:
+                tmp_member = Member.objects.get(id=member['id'])
+            except Member.DoesNotExist:
+                return JsonResponse({
+                    "error": "Tried to update a member that didn't exist"
+                }, status=404)
             tmp_member.nick = member['nick']
             tmp_member.save()
             try:
@@ -95,7 +105,12 @@ def user_update(request):
     if request.method == 'PUT':
         if APIKey.check_key(request.headers['X-Api-Key']):
             member = json.loads(request.body)
-            tmp_member = Member.objects.get(id=member['id'])
+            try:
+                tmp_member = Member.objects.get(id=member['id'])
+            except Member.DoesNotExist:
+                return JsonResponse({
+                    "error": "Tried to update a member that didn't exist"
+                }, status=404)
             tmp_member.name = member['name']
             tmp_member.discriminator = member['discriminator']
             tmp_member.avatar = member['avatar']
@@ -142,7 +157,12 @@ def role_remove(request):
     if request.method == 'PUT':
         if APIKey.check_key(request.headers['X-Api-Key']):
             role = json.loads(request.body)
-            Role.objects.get(id=role['id']).delete()
+            try:
+                Role.objects.get(id=role['id']).delete()
+            except Role.DoesNotExist:
+                return JsonResponse({
+                    "error": "Tried to remove a role that didn't exist"
+                }, status=404)
             return JsonResponse({
                 "PUT": "Role removal successful"
             }, status=200)
@@ -161,11 +181,14 @@ def role_update(request):
     if request.method == 'PUT':
         if APIKey.check_key(request.headers['X-Api-Key']):
             role = json.loads(request.body)
-            tmp_role = Role.objects.get(id=role['id'])
-            tmp_role.name = role['name']
-            tmp_role.position = role['position']
-            tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
-            tmp_role.save()
+            try:
+                tmp_role = Role.objects.get(id=role['id'])
+                tmp_role.name = role['name']
+                tmp_role.position = role['position']
+                tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
+                tmp_role.save()
+            except Role.DoesNotExist:
+                Role.objects.create(id=role['id'], name=role['name'], position=role['position'], colour=f"#{hex(role['colour']).lstrip('0x')}")
             return JsonResponse({
                 "PUT": "Successful"
             }, status=200)
