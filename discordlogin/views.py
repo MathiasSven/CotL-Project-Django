@@ -17,7 +17,6 @@ DISCORD_REDIRECT_URI = config.get("discordlogin", "DISCORD_REDIRECT_URI")
 SCOPE = config.get("discordlogin", "SCOPE")
 
 DISCORD_LOGIN_URI = f"https://discord.com/api/oauth2/authorize?client_id={DISCORD_CLIENT_ID}&redirect_uri={DISCORD_REDIRECT_URI}&response_type=code&scope={SCOPE}"
-os.environ['DISCORD_LOGIN_URI'] = DISCORD_LOGIN_URI
 
 DISCORD_CLIENT_SECRET = os.getenv('DISCORD_CLIENT_SECRET')
 
@@ -38,11 +37,14 @@ def get_authenticated_user(request):
 
 def discord_redirect(request):
     code = request.GET.get('code')
+    state = request.GET.get('state')
     user = exchange_code(code)
     discord_user = authenticate(user=user)
     discord_user = discord_user
     login(request, discord_user)
     # return JsonResponse({"user": user})
+    if state:
+        return redirect(state)
     return redirect("/")
 
 

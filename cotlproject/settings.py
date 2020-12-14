@@ -13,6 +13,7 @@ import ast
 import configparser
 import os
 from pathlib import Path
+from discordlogin.views import DISCORD_LOGIN_URI
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -130,4 +131,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-LOGIN_URL = os.getenv('DISCORD_LOGIN_URI')
+LOGIN_URL = DISCORD_LOGIN_URI
