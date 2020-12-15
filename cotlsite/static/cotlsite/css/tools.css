@@ -1,0 +1,78 @@
+#calculator {
+    padding-top: 250px;
+    width: 40%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sliders {
+    /*display: flex;*/
+    width: 100%; /* Width of the outside container */
+    height: 50px
+}
+
+label {
+    /* Other styling... */
+    text-align: left;
+    float:left;
+    width: 200px;
+    margin-right: auto;
+    margin-bottom: auto;
+    margin-top: auto;
+
+    font-family: var(--ff-primary);
+    color: var(--clr-aa-red)
+}
+
+/* The slider itself */
+.slider {
+    -webkit-appearance: none; /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    border-radius: 5px;
+    height: 15px; /* Specified height */
+    background: #d3d3d3; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+    float: left;
+
+    margin-bottom: auto;
+    margin-top: auto;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    border-radius: 50%;
+    background: var(--clr-aa-red);
+    cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    border-radius: 50%;
+    background: var(--clr-aa-red);
+    cursor: pointer; /* Cursor on hover */
+}
+
+.values {
+    float: right;
+    width: 70px;
+    margin-left: 40px;
+    height: 30px;
+
+    margin-bottom: auto;
+    margin-top: auto;
+}

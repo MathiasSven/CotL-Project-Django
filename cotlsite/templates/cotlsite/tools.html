@@ -3,34 +3,38 @@
 
 {% block head %}
     <link rel="stylesheet" href="{% static 'cotlsite/css/tools.css' %}">
-
-    <!-- Fonts to support Material Design -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"/>
-    <!-- Icons to support Material Design -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
-
-    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
-
-{#    <script type="text/babel" src="{% static 'cotlsite/js/tools.js' %}"></script>#}
 {% endblock %}
 
 {% block body %}
-    <div id="root"></div>
+    <div id="calculator">
+        <div class="sliders">
+            <label for="soldierSlider">Soldiers:</label>
+            <input class="form-control values" id="valueSoldier" type="number">
+            <input class="slider" id="soldierSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+        </div>
+        <div class="sliders">
+            <label for="tankSlider">Tanks:</label>
+            <input class="form-control values" id="valueTank" type="number">
+            <input class="slider" id="tankSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+        </div>
+        <div class="sliders">
+            <label for="aircraftSlider">Aircraft:</label>
+            <input class="form-control values" id="valueAircraft" type="number">
+            <input class="slider" id="aircraftSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+        </div>
+        <div class="sliders">
+            <label for="shipsSlider">Ships:</label>
+            <input class="form-control values" id="valueShips" type="number">
+            <input class="slider" id="shipsSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+        </div>
+        <div class="sliders">
+            <label for="infraSlider">Infrastructure:</label>
+            <input class="form-control values" id="valueInfra" type="number">
+            <input class="slider" id="infraSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+        </div>
+    </div>
+{% endblock %}
 
-    <script type="text/babel">
-        class App extends React.Component {
-            render() {
-                return (
-                    <div>
-                        Hello!
-                    </div>
-                );
-            }
-        }
-
-        ReactDOM.render(<App />, document.querySelector('#root'));
-    </script>
-
+{% block footer %}
+    <script src="{% static 'cotlsite/js/tools.js' %}"></script>
 {% endblock %}
