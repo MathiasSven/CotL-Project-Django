@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', function () {
     avatar_dropdown.style.transform = 'translateY(-20px)';
 
     const offClick = () => {
-        toggle_avatar_dropdown(avatar_dropdown);
+        if (avatar_dropdown.style.visibility === 'visible') {
+            toggle_avatar_dropdown(avatar_dropdown);
+        }
         document.removeEventListener('click', offClick);
     }
 
