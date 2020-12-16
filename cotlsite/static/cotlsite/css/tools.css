@@ -1,0 +1,191 @@
+#calculator {
+    padding-top: 100px;
+    width: 40%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+
+    color: var(--clr-aa-red);
+    font-family: var(--ff-primary);
+}
+
+h2 {
+    font-weight: 900;
+    margin-bottom: 50px;
+}
+
+.sliders {
+    /*display: flex;*/
+    width: 100%; /* Width of the outside container */
+    height: 50px;
+    margin-bottom: 30px;
+}
+
+.slider_header {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 7px;
+    padding-bottom: 7px;
+}
+
+label {
+    font-family: var(--ff-primary);
+    font-weight: var(--fw-reg);
+    font-size: 1.25rem;
+    color: inherit;
+
+    margin-bottom: 0 !important;
+}
+
+/* The slider itself */
+.slider {
+    -webkit-appearance: none; /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    border-radius: 5px;
+    height: 15px; /* Specified height */
+    background: #ffffff; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+    opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    border-radius: 50%;
+    background: var(--clr-aa-red);
+    cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    border-radius: 50%;
+    background: var(--clr-aa-red);
+    cursor: pointer; /* Cursor on hover */
+}
+
+.values {
+    float: right;
+    width: 70px;
+    height: 30px;
+
+    color: inherit;
+}
+
+/* :::::::::::::: Presentation css */
+* {
+    --locked-color: rgb(137, 48, 41);
+    --unlocked-color: #ffffff;
+}
+
+/* Locked */
+.lock {
+    width: 21px;
+    height: 19px;
+    border: 3px solid var(--locked-color);
+    border-radius: 5px;
+    position:absolute;
+    cursor: pointer;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+
+    transform: translate(-50px, 35px);
+}
+
+.lock:after {
+    content: "";
+    display: block;
+    background: var(--locked-color);
+    width: 3px;
+    height: 7px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -3.5px 0 0 -2px;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+.lock:before {
+    content: "";
+    display: block;
+    width: 15px;
+    height: 12px;
+    bottom: 100%;
+    position: absolute;
+    left: 50%;
+    margin-left: -8px;
+    border: 3px solid var(--locked-color);
+    border-top-right-radius: 50%;
+    border-top-left-radius: 50%;
+    border-bottom: 0;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+/* Locked Hover */
+.lock:hover:before {
+    height: 15px;
+}
+
+/* Unlocked */
+.unlocked {
+}
+
+.unlocked:before {
+    bottom: 130%;
+    left: 31%;
+    margin-left: -11.5px;
+    transform: rotate(-45deg);
+    height: 12px
+
+}
+
+.unlocked,
+.unlocked:before {
+    border-color: var(--unlocked-color);
+}
+
+.unlocked:after {
+    background: var(--unlocked-color);
+}
+
+/* Unlocked Hover */
+.unlocked:hover:before {
+    /*left: 40%;*/
+    /*bottom: 124%;*/
+    transform: translate(2px, 0) rotate(-30deg);
+}
+
+.dashboard {
+    display: flex;
+}
+
+#check_nation {
+    /*padding: 0 20px !important;*/
+    border-radius: 7px;
+    border: 3px solid #830800;
+
+    /*font-family: var(--ff-primary) !important;*/
+    background-color: #830800 !important;
+    /*font-size: 30px !important;*/
+}
+
+#check_nation:hover {
+    color: #F7DBB2 !important;
+}
+
+#check_nation:focus {
+    box-shadow: 0 0 0 0.2rem rgba(131, 8, 0, 0.34) !important;
+}

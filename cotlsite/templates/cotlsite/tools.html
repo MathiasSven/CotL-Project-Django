@@ -1,0 +1,38 @@
+{% extends 'cotlsite/layout.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'cotlsite/css/tools.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div id="calculator">
+        <h2>
+            Drop Calculator
+        </h2>
+        {% with 'Soldier Tank Aircraft Ships Infra' as type_list %}
+            {% for type in type_list.split %}
+                <div class="sliders">
+                    <div class="slider_header">
+                        <span class="lock" id="lock{{ type }}"></span>
+                        <label for="soldierSlider">{{ type }}:</label>
+                        <input class="form-control values" id="value{{ type }}" type="number">
+                    </div>
+                    <input class="slider" id="{{ type|lower }}Slider" max="100" min="0" step="1" type="range" value="50"/>
+                </div>
+            {% endfor %}
+        {% endwith %}
+        <div class="dashboard">
+            <form action="{% url 'drop-calculator' %}" method="post">
+                {% csrf_token %}
+                <label for="enemyNationId">Enemy Nation ID:</label>
+                <input class="form-control nation_id" id="enemyNationId" name="enemy_nation_id" type="number">
+                <input class="btn btn-primary" id="check_nation" type="submit" value="Check">
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script src="{% static 'cotlsite/js/tools.js' %}"></script>
+{% endblock %}
