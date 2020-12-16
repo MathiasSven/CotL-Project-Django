@@ -82,3 +82,6 @@ for (const lock of document.querySelectorAll('.lock')) {
         this.classList.toggle('unlocked')
     });
 }
+enemy_nation_id = document.getElementById('enemyNationId')
+
+nation_id_boxes = document.querySelectorAll('.nation_id')

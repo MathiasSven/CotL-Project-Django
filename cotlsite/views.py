@@ -24,4 +24,9 @@ def tools_view(request):
 @login_required(redirect_field_name='state')
 @allowed_users(allowed_roles=['P&W Member'])
 def drop_calculator(request):
-    return render(request, "cotlsite/tools.html")
+    if request.method == 'POST':
+        enemy_nation_id = request.POST['enemy_nation_id']
+
+    context = {'enemy_nation_id': None}
+
+    return render(request, "cotlsite/tools.html", context)

@@ -1,5 +1,5 @@
 #calculator {
-    padding-top: 200px;
+    padding-top: 100px;
     width: 40%;
     text-align: center;
     margin-left: auto;
@@ -166,4 +166,26 @@ label {
     /*left: 40%;*/
     /*bottom: 124%;*/
     transform: translate(2px, 0) rotate(-30deg);
+}
+
+.dashboard {
+    display: flex;
+}
+
+#check_nation {
+    /*padding: 0 20px !important;*/
+    border-radius: 7px;
+    border: 3px solid #830800;
+
+    /*font-family: var(--ff-primary) !important;*/
+    background-color: #830800 !important;
+    /*font-size: 30px !important;*/
+}
+
+#check_nation:hover {
+    color: #F7DBB2 !important;
+}
+
+#check_nation:focus {
+    box-shadow: 0 0 0 0.2rem rgba(131, 8, 0, 0.34) !important;
 }
