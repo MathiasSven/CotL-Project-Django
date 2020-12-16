@@ -4,22 +4,24 @@ let slider_types = ['Soldier', 'Tank', 'Aircraft', 'Ships', 'Infra'];
 
 sliders = []
 slider_values = []
+slider_locks = []
 
 for (const slider_type of slider_types) {
     sliders.push(document.getElementById(`${slider_type.toLowerCase()}Slider`));
     slider_values.push(document.getElementById(`value${slider_type}`));
+    slider_locks.push(document.getElementById(`lock${slider_type}`));
 }
 
 function propagator(x, diff) {
     while (diff !== 0) {
         for (let i = 0; i < sliders.length; i++) {
-            if (i === x) {
+            if (i === x || ! slider_locks[i].classList.contains('unlocked')) {
                 continue;
             } else if (diff > 0) {
                 if (sliders[i].value === sliders[i].min) {
                     continue;
                 }
-            } else if (diff< 0)  {
+            } else if (diff < 0) {
                 if (sliders[i].value === sliders[i].max) {
                     continue;
                 }
@@ -59,19 +61,24 @@ for (let i = 0; i < sliders.length; i++) {
         propagator(i, difference);
     };
 
-    // slider_values[i].oninput = function () {
-    //
-    //     let difference = this.vnow - this.recent
-    //     this.recent = this.vnow
-    //
-    //     sliders[i].value = Math.round(this.value)
-    //     sliders[i].vnow = this.value
-    //     sliders[i].recent = this.value
-    //
-    //     propagator(i, difference)
-    // }
+    slider_values[i].oninput = function () {
+
+        let difference = this.value - this.recent
+        this.recent = this.value
+
+        sliders[i].value = Math.round(this.value)
+        sliders[i].vnow = this.value
+        sliders[i].recent = this.value
+
+        propagator(i, difference)
+    }
 }
 
-$( ".lock" ).click(function() {
-  $(this).toggleClass('unlocked');
-});
+for (const lock of document.querySelectorAll('.lock')) {
+    if (lock !== slider_locks[4]) {
+        lock.classList.toggle('unlocked')
+    }
+    lock.addEventListener('click', function () {
+        this.classList.toggle('unlocked')
+    });
+}

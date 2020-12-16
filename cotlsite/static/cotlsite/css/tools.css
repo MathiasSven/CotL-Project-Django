@@ -85,74 +85,85 @@ label {
 
 /* :::::::::::::: Presentation css */
 * {
-  --locked-color: #5fadbf;
-  --unlocked-color: #ff5153;
+    --locked-color: rgb(137, 48, 41);
+    --unlocked-color: #ffffff;
 }
+
 /* Locked */
 .lock {
-  width: 24px;
-  height: 21px;
-  border: 3px solid var(--locked-color);
-  border-radius: 5px;
-  position: relative;
-  cursor: pointer;
-  -webkit-transition: all 0.1s ease-in-out;
-  transition: all 0.1s ease-in-out;
+    width: 21px;
+    height: 19px;
+    border: 3px solid var(--locked-color);
+    border-radius: 5px;
+    position:absolute;
+    cursor: pointer;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+
+    transform: translate(-50px, 35px);
 }
+
 .lock:after {
-  content: "";
-  display: block;
-  background: var(--locked-color);
-  width: 3px;
-  height: 7px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin: -3.5px 0 0 -2px;
-  -webkit-transition: all 0.1s ease-in-out;
-  transition: all 0.1s ease-in-out;
+    content: "";
+    display: block;
+    background: var(--locked-color);
+    width: 3px;
+    height: 7px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -3.5px 0 0 -2px;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
 }
+
 .lock:before {
-  content: "";
-  display: block;
-  width: 15px;
-  height: 12px;
-  bottom: 100%;
-  position: absolute;
-  left: 50%;
-  margin-left: -8px;
-  border: 3px solid var(--locked-color);
-  border-top-right-radius: 50%;
-  border-top-left-radius: 50%;
-  border-bottom: 0;
-  -webkit-transition: all 0.1s ease-in-out;
-  transition: all 0.1s ease-in-out;
+    content: "";
+    display: block;
+    width: 15px;
+    height: 12px;
+    bottom: 100%;
+    position: absolute;
+    left: 50%;
+    margin-left: -8px;
+    border: 3px solid var(--locked-color);
+    border-top-right-radius: 50%;
+    border-top-left-radius: 50%;
+    border-bottom: 0;
+    -webkit-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
 }
+
 /* Locked Hover */
 .lock:hover:before {
-  height: 15px;
+    height: 15px;
 }
+
 /* Unlocked */
 .unlocked {
 }
+
 .unlocked:before {
-  bottom: 130%;
-  left: 31%;
-  margin-left: -11.5px;
-  transform: rotate(-45deg);
-    height: 15px
+    bottom: 130%;
+    left: 31%;
+    margin-left: -11.5px;
+    transform: rotate(-45deg);
+    height: 12px
 
 }
+
 .unlocked,
 .unlocked:before {
-  border-color: var(--unlocked-color);
+    border-color: var(--unlocked-color);
 }
+
 .unlocked:after {
-  background: var(--unlocked-color);
+    background: var(--unlocked-color);
 }
+
 /* Unlocked Hover */
 .unlocked:hover:before {
-  height: 15px;
-  left: 40%;
-  bottom: 124%;
+    /*left: 40%;*/
+    /*bottom: 124%;*/
+    transform: translate(2px, 0) rotate(-30deg);
 }

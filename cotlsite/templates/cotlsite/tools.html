@@ -10,9 +10,10 @@
         <h2>
             Drop Calculator
         </h2>
+{#        {% cycle %}#}
         <div class="sliders">
             <div class="slider_header">
-                <span class="lock"></span>
+                <span class="lock" id="lockSoldier"></span>
                 <label for="soldierSlider">Soldiers:</label>
                 <input class="form-control values" id="valueSoldier" type="number">
             </div>
@@ -20,6 +21,7 @@
         </div>
         <div class="sliders">
             <div class="slider_header">
+                <span class="lock" id="lockTank"></span>
                 <label for="tankSlider">Tanks:</label>
                 <input class="form-control values" id="valueTank" type="number">
             </div>
@@ -27,6 +29,7 @@
         </div>
         <div class="sliders">
             <div class="slider_header">
+                <span class="lock" id="lockAircraft"></span>
                 <label for="aircraftSlider">Aircraft:</label>
                 <input class="form-control values" id="valueAircraft" type="number">
             </div>
@@ -34,6 +37,7 @@
         </div>
         <div class="sliders">
             <div class="slider_header">
+                <span class="lock" id="lockShips"></span>
                 <label for="shipsSlider">Ships:</label>
                 <input class="form-control values" id="valueShips" type="number">
             </div>
@@ -41,6 +45,7 @@
         </div>
         <div class="sliders">
             <div class="slider_header">
+                <span class="lock" id="lockInfra"></span>
                 <label for="infraSlider">Infrastructure:</label>
                 <input class="form-control values" id="valueInfra" type="number">
             </div>
