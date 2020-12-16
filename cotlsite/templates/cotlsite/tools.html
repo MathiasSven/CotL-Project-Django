@@ -7,30 +7,44 @@
 
 {% block body %}
     <div id="calculator">
+        <h2>
+            Drop Calculator
+        </h2>
         <div class="sliders">
-            <label for="soldierSlider">Soldiers:</label>
-            <input class="form-control values" id="valueSoldier" type="number">
-            <input class="slider" id="soldierSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+            <div class="slider_header">
+                <span class="lock"></span>
+                <label for="soldierSlider">Soldiers:</label>
+                <input class="form-control values" id="valueSoldier" type="number">
+            </div>
+            <input class="slider" id="soldierSlider" max="100" min="0" step="1" type="range" value="50"/>
         </div>
         <div class="sliders">
-            <label for="tankSlider">Tanks:</label>
-            <input class="form-control values" id="valueTank" type="number">
-            <input class="slider" id="tankSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+            <div class="slider_header">
+                <label for="tankSlider">Tanks:</label>
+                <input class="form-control values" id="valueTank" type="number">
+            </div>
+            <input class="slider" id="tankSlider" max="100" min="0" step="1" type="range" value="50"/>
         </div>
         <div class="sliders">
-            <label for="aircraftSlider">Aircraft:</label>
-            <input class="form-control values" id="valueAircraft" type="number">
-            <input class="slider" id="aircraftSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+            <div class="slider_header">
+                <label for="aircraftSlider">Aircraft:</label>
+                <input class="form-control values" id="valueAircraft" type="number">
+            </div>
+            <input class="slider" id="aircraftSlider" max="100" min="0" step="1" type="range" value="50"/>
         </div>
         <div class="sliders">
-            <label for="shipsSlider">Ships:</label>
-            <input class="form-control values" id="valueShips" type="number">
-            <input class="slider" id="shipsSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+            <div class="slider_header">
+                <label for="shipsSlider">Ships:</label>
+                <input class="form-control values" id="valueShips" type="number">
+            </div>
+            <input class="slider" id="shipsSlider" max="100" min="1" step="0" type="range" value="50"/>
         </div>
         <div class="sliders">
-            <label for="infraSlider">Infrastructure:</label>
-            <input class="form-control values" id="valueInfra" type="number">
-            <input class="slider" id="infraSlider" max="100" min="1" step="0.001" type="range" value="50"/>
+            <div class="slider_header">
+                <label for="infraSlider">Infrastructure:</label>
+                <input class="form-control values" id="valueInfra" type="number">
+            </div>
+            <input class="slider" id="infraSlider" max="100" min="1" step="0" type="range" value="50"/>
         </div>
     </div>
 {% endblock %}

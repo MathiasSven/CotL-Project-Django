@@ -1,28 +1,40 @@
 #calculator {
-    padding-top: 250px;
+    padding-top: 200px;
     width: 40%;
     text-align: center;
     margin-left: auto;
     margin-right: auto;
+
+    color: var(--clr-aa-red);
+    font-family: var(--ff-primary);
+}
+
+h2 {
+    font-weight: 900;
+    margin-bottom: 50px;
 }
 
 .sliders {
     /*display: flex;*/
     width: 100%; /* Width of the outside container */
-    height: 50px
+    height: 50px;
+    margin-bottom: 30px;
+}
+
+.slider_header {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 7px;
+    padding-bottom: 7px;
 }
 
 label {
-    /* Other styling... */
-    text-align: left;
-    float:left;
-    width: 200px;
-    margin-right: auto;
-    margin-bottom: auto;
-    margin-top: auto;
-
     font-family: var(--ff-primary);
-    color: var(--clr-aa-red)
+    font-weight: var(--fw-reg);
+    font-size: 1.25rem;
+    color: inherit;
+
+    margin-bottom: 0 !important;
 }
 
 /* The slider itself */
@@ -32,15 +44,11 @@ label {
     width: 100%; /* Full-width */
     border-radius: 5px;
     height: 15px; /* Specified height */
-    background: #d3d3d3; /* Grey background */
+    background: #ffffff; /* Grey background */
     outline: none; /* Remove outline */
     opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
     -webkit-transition: .2s; /* 0.2 seconds transition on hover */
     transition: opacity .2s;
-    float: left;
-
-    margin-bottom: auto;
-    margin-top: auto;
 }
 
 /* Mouse-over effects */
@@ -70,9 +78,81 @@ label {
 .values {
     float: right;
     width: 70px;
-    margin-left: 40px;
     height: 30px;
 
-    margin-bottom: auto;
-    margin-top: auto;
+    color: inherit;
+}
+
+/* :::::::::::::: Presentation css */
+* {
+  --locked-color: #5fadbf;
+  --unlocked-color: #ff5153;
+}
+/* Locked */
+.lock {
+  width: 24px;
+  height: 21px;
+  border: 3px solid var(--locked-color);
+  border-radius: 5px;
+  position: relative;
+  cursor: pointer;
+  -webkit-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+}
+.lock:after {
+  content: "";
+  display: block;
+  background: var(--locked-color);
+  width: 3px;
+  height: 7px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -3.5px 0 0 -2px;
+  -webkit-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+}
+.lock:before {
+  content: "";
+  display: block;
+  width: 15px;
+  height: 12px;
+  bottom: 100%;
+  position: absolute;
+  left: 50%;
+  margin-left: -8px;
+  border: 3px solid var(--locked-color);
+  border-top-right-radius: 50%;
+  border-top-left-radius: 50%;
+  border-bottom: 0;
+  -webkit-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+}
+/* Locked Hover */
+.lock:hover:before {
+  height: 15px;
+}
+/* Unlocked */
+.unlocked {
+}
+.unlocked:before {
+  bottom: 130%;
+  left: 31%;
+  margin-left: -11.5px;
+  transform: rotate(-45deg);
+    height: 15px
+
+}
+.unlocked,
+.unlocked:before {
+  border-color: var(--unlocked-color);
+}
+.unlocked:after {
+  background: var(--unlocked-color);
+}
+/* Unlocked Hover */
+.unlocked:hover:before {
+  height: 15px;
+  left: 40%;
+  bottom: 124%;
 }

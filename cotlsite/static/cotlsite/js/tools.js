@@ -11,37 +11,53 @@ for (const slider_type of slider_types) {
 }
 
 function propagator(x, diff) {
+    while (diff !== 0) {
+        for (let i = 0; i < sliders.length; i++) {
+            if (i === x) {
+                continue;
+            } else if (diff > 0) {
+                if (sliders[i].value === sliders[i].min) {
+                    continue;
+                }
+            } else if (diff< 0)  {
+                if (sliders[i].value === sliders[i].max) {
+                    continue;
+                }
+            }
 
-    for (let i = 0; i < sliders.length; i++) {
-        if (i === x) { continue; }
+            if (diff !== 0) {
+                if (diff > 0) {
+                    diff--
+                    sliders[i].value--;
+                    sliders[i].recent--;
+                } else if (diff < 0) {
+                    diff++;
+                    sliders[i].value++;
+                    sliders[i].recent++;
+                }
 
-        sliders[i].value -= diff/4
-
-        slider_values[i].vnow -= diff/4
-        slider_values[i].value = Math.round(slider_values[i].vnow)
+                slider_values[i].value = sliders[i].value
+            }
+        }
     }
 }
 
 for (let i = 0; i < sliders.length; i++) {
     slider_values[i].value = sliders[i].value;
 
-    sliders[i]['vnow'] = sliders[i].value
-    slider_values[i]['vnow'] = slider_values[i].value
-
-    sliders[i]['recent'] = sliders[i].value
-    slider_values[i]['recent'] = slider_values[i].value
+    sliders[i]['recent'] = sliders[i].value;
+    slider_values[i]['recent'] = slider_values[i].value;
 
     sliders[i].oninput = function () {
 
-        let difference = this.value - this.recent
-        this.recent = this.value
+        let difference = this.value - this.recent;
+        this.recent = this.value;
 
-        slider_values[i].value = Math.round(this.value)
-        slider_values[i].vnow = this.value
-        slider_values[i].recent = this.value
+        slider_values[i].value = this.value;
+        slider_values[i].recent = this.value;
 
-        propagator(i, difference)
-    }
+        propagator(i, difference);
+    };
 
     // slider_values[i].oninput = function () {
     //
@@ -55,3 +71,7 @@ for (let i = 0; i < sliders.length; i++) {
     //     propagator(i, difference)
     // }
 }
+
+$( ".lock" ).click(function() {
+  $(this).toggleClass('unlocked');
+});
