@@ -72,7 +72,7 @@ class Role(models.Model):
         return '%s (%s)' % (self.name, self.id)
 
 
-class PnWData(models.Model):
+class MemberNation(models.Model):
     nation_id = models.IntegerField(primary_key=True)
     nation_name = models.CharField(max_length=32, null=True)
     leader_name = models.CharField(max_length=32, null=True)
@@ -97,8 +97,8 @@ class PnWData(models.Model):
             instance.save()
 
     class Meta:
-        verbose_name = 'PnW Data'
-        verbose_name_plural = 'PnW Profiles'
+        verbose_name = 'Member Nation'
+        verbose_name_plural = 'Member Nations'
 
     def nation_link(self):
         return f"https://politicsandwar.com/nation/id={self.nation_id}"
@@ -112,4 +112,4 @@ class PnWData(models.Model):
 
 
 # PnWData Connector
-post_save.connect(PnWData.post_create, sender=PnWData)
+post_save.connect(MemberNation.post_create, sender=MemberNation)

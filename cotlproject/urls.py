@@ -15,6 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth.decorators import login_required
+
+admin.autodiscover()
+admin.site.login = login_required(admin.site.login, redirect_field_name='state')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

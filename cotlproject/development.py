@@ -15,19 +15,13 @@ import os
 from pathlib import Path
 from discordlogin.views import DISCORD_LOGIN_URI
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 config = configparser.ConfigParser()
 config.read(f"{BASE_DIR}/config.ini")
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
+SECRET_KEY = "development_key"
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
