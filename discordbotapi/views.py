@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import APIKey
-from cotlsite.models import Member, Role, PnWData
+from cotlsite.models import Member, Role, MemberNation
 
 
 # noinspection DuplicatedCode
@@ -249,7 +249,7 @@ def link_nation(request):
                 return JsonResponse({
                     "error": "Member is not on the database"
                 }, status=500)
-            linking_nation, _ = PnWData.objects.get_or_create(nation_id=data['nation_id'])
+            linking_nation, _ = MemberNation.objects.get_or_create(nation_id=data['nation_id'])
             linking_nation.discord_member = member_to_link
             linking_nation.save()
             return JsonResponse({
