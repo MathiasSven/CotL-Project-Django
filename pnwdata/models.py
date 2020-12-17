@@ -10,13 +10,12 @@ class Alliance(models.Model):
     rank = models.IntegerField()
     members_count = models.IntegerField()
     score = models.FloatField()
-    # leaders = models.ForeignKey('Nation', on_delete=models.CASCADE, null=True)
-    # officers = models.ForeignKey()
-    # heirs = models.ForeignKey()
     avg_score = models.FloatField()
     flag_url = models.URLField(blank=True)
     forum_url = models.URLField(blank=True)
     irc_chan = models.CharField(max_length=30)
+
+    last_updated = models.DateTimeField(auto_now=True)
 
 
 class Nation(models.Model):
@@ -27,6 +26,7 @@ class Nation(models.Model):
     war_policy = models.CharField(max_length=30)
     color = models.CharField(max_length=30)
     alliance = models.ForeignKey(Alliance, on_delete=models.SET_DEFAULT, default=0)
+    alliance_position = models.IntegerField()
     city_count = models.IntegerField()
     infrastructure = models.FloatField()
     offensive_war_count = models.IntegerField()
@@ -36,73 +36,102 @@ class Nation(models.Model):
     vc_mode = models.IntegerField()
     minutes_since_active = models.IntegerField()
 
+    last_updated = models.DateTimeField(auto_now=True)
 
-class Bank(models.Model):
-    alliance = models.ForeignKey(Alliance, on_delete=models.CASCADE)
-    tax_rate = models.IntegerField()
-    resource_tax_rate = models.IntegerField()
+
+class NationMilitary(models.Model):
+    nation = models.OneToOneField(Nation, on_delete=models.CASCADE)
+
+    soldiers = models.IntegerField()
+    tanks = models.IntegerField()
+    aircraft = models.IntegerField()
+    ships = models.IntegerField()
+    missiles = models.IntegerField()
+    nukes = models.IntegerField()
+    spies = models.IntegerField()
+
+    last_updated = models.DateTimeField(auto_now=True)
+
+
+class Projects(models.Model):
+    nation = models.OneToOneField(Nation, on_delete=models.CASCADE)
+
+    bauxiteworks = models.BooleanField(default=False)
+    ironworks = models.BooleanField(default=False)
+    armsstockpile = models.BooleanField(default=False)
+    emgasreserve = models.BooleanField(default=False)
+    massirrigation = models.BooleanField(default=False)
+    inttradecenter = models.BooleanField(default=False)
+    missilepad = models.BooleanField(default=False)
+    nuclearresfac = models.BooleanField(default=False)
+    irondome = models.BooleanField(default=False)
+    vitaldefsys = models.BooleanField(default=False)
+    intagncy = models.BooleanField(default=False)
+    uraniumenrich = models.BooleanField(default=False)
+    propbureau = models.BooleanField(default=False)
+    cenciveng = models.BooleanField(default=False)
+    city_planning = models.BooleanField(default=False)
+    adv_city_planning = models.BooleanField(default=False)
+    space_program = models.BooleanField(default=False)
+    spy_satellite = models.BooleanField(default=False)
+    moon_landing = models.BooleanField(default=False)
+    green_technologies = models.BooleanField(default=False)
+    telecommunications_satellite = models.BooleanField(default=False)
+    recycling_initiative = models.BooleanField(default=False)
+    pirate_economy = models.BooleanField(default=False)
+    clinical_research_center = models.BooleanField(default=False)
+    specialized_police_training = models.BooleanField(default=False)
+    arable_land_agency = models.BooleanField(default=False)
+    adv_engineering_corps = models.BooleanField(default=False)
+
+    last_updated = models.DateTimeField(auto_now=True)
+
+
+class Resources(models.Model):
+
     money = models.FloatField()
     food = models.FloatField()
     coal = models.FloatField()
     oil = models.FloatField()
     uranium = models.FloatField()
-    iron = models.FloatField()
     bauxite = models.FloatField()
+    iron = models.FloatField()
     lead = models.FloatField()
     gasoline = models.FloatField()
     munitions = models.FloatField()
-    steel = models.FloatField()
     aluminum = models.FloatField()
+    steel = models.FloatField()
+
+    class Meta:
+        abstract = True
+
+
+class NationResources(Resources):
+    nation = models.OneToOneField(Nation, on_delete=models.CASCADE)
+
+    credits = models.FloatField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+
+class Bank(Resources):
+    alliance = models.OneToOneField(Alliance, on_delete=models.CASCADE)
+    tax_rate = models.IntegerField()
+    resource_tax_rate = models.IntegerField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+
+class Loan(Resources):
+    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+    pay_by = models.DateField()
+
+
+class Deposit(Resources):
+    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+
 
 class AllianceMember(models.Model):
-    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+    nation = models.OneToOneField(Nation, on_delete=models.CASCADE)
     alliance = models.ForeignKey(Alliance, on_delete=models.CASCADE)
-"cityprojecttimerturns": 0,
-"update_tz": 0,
-"bauxiteworks": "0",
-"ironworks": "1",
-"armsstockpile": "0",
-"emgasreserve": "0",
-"massirrigation": "0",
-"inttradecenter": "1",
-"missilepad": "1",
-"nuclearresfac": "1",
-"irondome": "1",
-"vitaldefsys": "1",
-"intagncy": "1",
-"uraniumenrich": "1",
-"propbureau": "1",
-"cenciveng": "1",
-"city_planning": "0",
-"adv_city_planning": "0",
-"space_program": "1",
-"spy_satellite": "1",
-"moon_landing": "0",
-"green_technologies": "0",
-"telecommunications_satellite": "0",
-"recycling_initiative": "1",
-"pirate_economy": "0",
-"clinical_research_center": null,
-"specialized_police_training": null,
-"arable_land_agency": null,
-"adv_engineering_corps": null,
-"money": "369836263.38",
-"food": "23788.39",
-"coal": "4216.33",
-"oil": "1038.50",
-"uranium": "18250.80",
-"bauxite": "2219.75",
-"iron": "13.41",
-"lead": "873.75",
-"gasoline": "11523.13",
-"munitions": "13684.17",
-"aluminum": "33146.89",
-"steel": "49494.83",
-"credits": "5",
-"soldiers": "0",
-"tanks": "17800",
-"aircraft": "2130",
-"ships": "129",
-"missiles": "0",
-"nukes": "0",
-"spies": "60"
+
+    city_project_timer_turns = models.IntegerField()
+    update_tz = models.IntegerField()
