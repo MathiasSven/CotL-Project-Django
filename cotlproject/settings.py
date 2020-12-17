@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'cotlsite.apps.CotlsiteConfig',
     'discordlogin.apps.DiscordloginConfig',
     'discordbotapi.apps.DiscordbotapiConfig',
+    'pnwdata.apps.PnwdataConfig',
 ]
 
 MIDDLEWARE = [
