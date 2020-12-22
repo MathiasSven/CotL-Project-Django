@@ -51,4 +51,4 @@ wheels/
 *.egg
 *.sqlite3
 config.ini
-sheetcreds.json
+credentials.json

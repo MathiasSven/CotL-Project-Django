@@ -8,3 +8,9 @@ pytz==2020.1
 requests==2.24.0
 sqlparse==0.4.1
 urllib3==1.25.11
+celery~=5.0.5
+redis==3.5.3
+django-celery-beat==2.1.0
+django-celery-results==2.0.0
+gspread~=3.6.0
+oauth2client~=4.1.3

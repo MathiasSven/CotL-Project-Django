@@ -1,7 +1,9 @@
-import os
+import configparser
 import requests
+from pathlib import Path
 from datetime import datetime
 
+from django.contrib.auth.models import Permission
 from django.db import models
 
 from colorfield.fields import ColorField
@@ -9,13 +11,17 @@ from django.db.models.signals import post_save
 
 from discordlogin.models import User as UserModel
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+config = configparser.ConfigParser()
+config.read(f"{BASE_DIR}/config.ini")
+
 
 class Member(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=32, null=True)
     discriminator = models.CharField(max_length=4, null=True)
-    avatar = models.CharField(max_length=100, blank=True)
-    nick = models.CharField(max_length=32, blank=True)
+    avatar = models.CharField(max_length=100, blank=True, null=True)
+    nick = models.CharField(max_length=32, blank=True, null=True)
     roles = models.ManyToManyField('Role')
 
     @classmethod
@@ -65,6 +71,12 @@ class Role(models.Model):
     position = models.IntegerField(null=True)
     colour = ColorField()
 
+    permissions = models.ManyToManyField(
+        Permission,
+        verbose_name='permissions',
+        blank=True,
+    )
+
     class Meta:
         ordering = ['-position']
 
@@ -84,7 +96,7 @@ class MemberNation(models.Model):
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):
         if created:
-            fetched_data = requests.get(f"http://politicsandwar.com/api/nation/id={instance.nation_id}&key={os.getenv('PNW_API_KEY')}")
+            fetched_data = requests.get(f"http://politicsandwar.com/api/nation/id={instance.nation_id}&key={config.get('pnw', 'API_KEY')}")
             fetched_data = fetched_data.json()
 
             if not fetched_data['success']:

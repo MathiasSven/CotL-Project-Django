@@ -1,60 +1,75 @@
 from django.db import models
 
 
+# noinspection PyProtectedMember
+def filter_kwargs(model, arg_dict):
+    model_fields = [f.name for f in model._meta.get_fields()]
+    return {k: v for k, v in arg_dict.items() if k in model_fields}
+
+
 class Alliance(models.Model):
     id = models.IntegerField(primary_key=True)
-    date_founded = models.DateTimeField()
-    name = models.CharField(max_length=30)
-    acronym = models.CharField(max_length=10, blank=True)
-    color = models.CharField(max_length=10, blank=True)
-    rank = models.IntegerField()
-    members_count = models.IntegerField()
-    score = models.FloatField()
-    avg_score = models.FloatField()
-    flag_url = models.URLField(blank=True)
-    forum_url = models.URLField(blank=True)
-    irc_chan = models.CharField(max_length=30)
+    founddate = models.DateTimeField(null=True)
+    name = models.CharField(max_length=30, null=True)
+    acronym = models.CharField(max_length=10, null=True)
+    color = models.CharField(max_length=10, null=True)
+    rank = models.IntegerField(null=True)
+    members = models.IntegerField(null=True)
+    score = models.FloatField(null=True)
+    avgscore = models.FloatField(null=True)
+    flagurl = models.URLField(blank=True)
+    forumurl = models.URLField(blank=True)
+    ircchan = models.CharField(max_length=30, null=True)
 
     last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '%s (%s)' % (self.name, self.id)
 
 
 class Nation(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name = models.CharField(max_length=30)
-    leader = models.CharField(max_length=30)
-    continent = models.CharField(max_length=30)
-    war_policy = models.CharField(max_length=30)
-    color = models.CharField(max_length=30)
-    alliance = models.ForeignKey(Alliance, on_delete=models.SET_DEFAULT, default=0)
-    alliance_position = models.IntegerField()
-    city_count = models.IntegerField()
-    infrastructure = models.FloatField()
-    offensive_war_count = models.IntegerField()
-    defensive_war_count = models.IntegerField()
-    score = models.FloatField()
-    rank = models.IntegerField()
-    vc_mode = models.IntegerField()
-    minutes_since_active = models.IntegerField()
+    nationid = models.IntegerField(primary_key=True)
+    nation = models.CharField(max_length=30, null=True)
+    leader = models.CharField(max_length=30, null=True)
+    continent = models.CharField(max_length=30, null=True)
+    war_policy = models.CharField(max_length=30, null=True)
+    color = models.CharField(max_length=30, null=True)
+    alliance = models.ForeignKey(Alliance, on_delete=models.SET_NULL, blank=True, null=True)
+    allianceposition = models.IntegerField(null=True)
+    cities = models.IntegerField(null=True)
+    infrastructure = models.FloatField(null=True)
+    offensivewars = models.IntegerField(null=True)
+    defensivewars = models.IntegerField(null=True)
+    score = models.FloatField(null=True)
+    rank = models.IntegerField(null=True)
+    vacmode = models.IntegerField(null=True)
+    minutessinceactive = models.IntegerField(null=True)
 
     last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '%s (%s)' % (self.nation, self.nationid)
 
 
 class NationMilitary(models.Model):
-    nation = models.OneToOneField(Nation, on_delete=models.CASCADE)
+    nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)
 
-    soldiers = models.IntegerField()
-    tanks = models.IntegerField()
-    aircraft = models.IntegerField()
-    ships = models.IntegerField()
-    missiles = models.IntegerField()
-    nukes = models.IntegerField()
-    spies = models.IntegerField()
+    soldiers = models.IntegerField(null=True)
+    tanks = models.IntegerField(null=True)
+    aircraft = models.IntegerField(null=True)
+    ships = models.IntegerField(null=True)
+    missiles = models.IntegerField(null=True)
+    nukes = models.IntegerField(null=True)
+    spies = models.IntegerField(null=True)
 
     last_updated = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return '%s (%s) Military' % (self.nation.nation, self.nation.nationid)
+
 
 class Projects(models.Model):
-    nation = models.OneToOneField(Nation, on_delete=models.CASCADE)
+    nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)
 
     bauxiteworks = models.BooleanField(default=False)
     ironworks = models.BooleanField(default=False)
@@ -86,52 +101,73 @@ class Projects(models.Model):
 
     last_updated = models.DateTimeField(auto_now=True)
 
+    def project_count(self):
+        model_fields = [f.name for f in self._meta.get_fields() if isinstance(f, models.fields.BooleanField)]
+        projects = {k: v for k, v in self.__dict__.items() if k in model_fields}
+        return sum(projects.values())
+
+    def __str__(self):
+        return '%s (%s) Projects' % (self.nation.nation, self.nation.nationid)
+
 
 class Resources(models.Model):
-
-    money = models.FloatField()
-    food = models.FloatField()
-    coal = models.FloatField()
-    oil = models.FloatField()
-    uranium = models.FloatField()
-    bauxite = models.FloatField()
-    iron = models.FloatField()
-    lead = models.FloatField()
-    gasoline = models.FloatField()
-    munitions = models.FloatField()
-    aluminum = models.FloatField()
-    steel = models.FloatField()
+    money = models.FloatField(null=True, default=0)
+    food = models.FloatField(null=True, default=0)
+    coal = models.FloatField(null=True, default=0)
+    oil = models.FloatField(null=True, default=0)
+    uranium = models.FloatField(null=True, default=0)
+    bauxite = models.FloatField(null=True, default=0)
+    iron = models.FloatField(null=True, default=0)
+    lead = models.FloatField(null=True, default=0)
+    gasoline = models.FloatField(null=True, default=0)
+    munitions = models.FloatField(null=True, default=0)
+    aluminum = models.FloatField(null=True, default=0)
+    steel = models.FloatField(null=True, default=0)
 
     class Meta:
         abstract = True
 
 
-class NationResources(Resources):
-    nation = models.OneToOneField(Nation, on_delete=models.CASCADE)
+class Bank(Resources):
+    alliance = models.OneToOneField(Alliance, on_delete=models.CASCADE, primary_key=True)
+    taxrate = models.IntegerField()
+    resource_taxrate = models.IntegerField()
+
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return '%s (%s) Bank' % (self.alliance.name, self.alliance.id)
+
+
+class AllianceMember(Resources):
+    nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)
 
     credits = models.FloatField()
+    cityprojecttimerturns = models.IntegerField(null=True)
+    update_tz = models.IntegerField(null=True)
+
     last_updated = models.DateTimeField(auto_now=True)
 
-
-class Bank(Resources):
-    alliance = models.OneToOneField(Alliance, on_delete=models.CASCADE)
-    tax_rate = models.IntegerField()
-    resource_tax_rate = models.IntegerField()
-    last_updated = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return '%s (%s) Alliance Member' % (self.nation.nation, self.nation.nationid)
 
 
 class Loan(Resources):
     nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
-    pay_by = models.DateField()
+    borrowing_date = models.DateField(auto_now_add=True)
+    pay_by = models.DateField(null=True)
+    payed = models.BooleanField(default=False)
+    payed_on = models.DateField(null=True)
+
+    def save(self, *args, **kw):
+        if self.payed:
+            self.payed_on = models.fields.datetime.datetime.utcnow()
+        super(Loan, self).save(*args, **kw)
+
+    def __str__(self):
+        return 'Loan by %s (%s)' % (self.nation.nation, self.nation.nationid)
 
 
 class Deposit(Resources):
     nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
-
-
-class AllianceMember(models.Model):
-    nation = models.OneToOneField(Nation, on_delete=models.CASCADE)
-    alliance = models.ForeignKey(Alliance, on_delete=models.CASCADE)
-
-    city_project_timer_turns = models.IntegerField()
-    update_tz = models.IntegerField()
+    deposited_on = models.DateField(auto_now_add=True)
