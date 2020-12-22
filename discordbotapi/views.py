@@ -22,7 +22,7 @@ def member_join(request):
 
             tmp_member.save()
             for role in member['roles']:
-                tmp_role = Role.objects.get(id=role['id'])
+                tmp_role = Role.objects.get(role_id=role['id'])
                 tmp_member.roles.add(tmp_role)
             return JsonResponse({
                 "POST": "Member creation successful"
@@ -78,7 +78,7 @@ def member_update(request):
                 roles = member['roles']
                 tmp_member.roles.clear()
                 for role in roles:
-                    tmp_role, _ = Role.objects.get_or_create(id=role['id'])
+                    tmp_role, _ = Role.objects.get_or_create(role_id=role['id'])
                     tmp_role.name = role['name']
                     tmp_role.position = role['position']
                     tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
@@ -134,7 +134,7 @@ def role_create(request):
         if APIKey.check_key(request.headers['X-Api-Key']):
             role = json.loads(request.body)
             Role.objects.create(
-                id=role['id'],
+                role_id=role['id'],
                 name=role['name'],
                 position=role['position'],
                 colour=f"#{hex(role['colour']).lstrip('0x')}"
@@ -158,7 +158,7 @@ def role_remove(request):
         if APIKey.check_key(request.headers['X-Api-Key']):
             role = json.loads(request.body)
             try:
-                Role.objects.get(id=role['id']).delete()
+                Role.objects.get(role_id=role['id']).delete()
             except Role.DoesNotExist:
                 return JsonResponse({
                     "error": "Tried to remove a role that didn't exist"
@@ -182,13 +182,13 @@ def role_update(request):
         if APIKey.check_key(request.headers['X-Api-Key']):
             role = json.loads(request.body)
             try:
-                tmp_role = Role.objects.get(id=role['id'])
+                tmp_role = Role.objects.get(role_id=role['id'])
                 tmp_role.name = role['name']
                 tmp_role.position = role['position']
                 tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
                 tmp_role.save()
             except Role.DoesNotExist:
-                Role.objects.create(id=role['id'], name=role['name'], position=role['position'], colour=f"#{hex(role['colour']).lstrip('0x')}")
+                Role.objects.create(role_id=role['id'], name=role['name'], position=role['position'], colour=f"#{hex(role['colour']).lstrip('0x')}")
             return JsonResponse({
                 "PUT": "Successful"
             }, status=200)
@@ -218,7 +218,7 @@ def members_bulk(request):
                 tmp_member.save()
                 for role in member['roles']:
                     tmp_role, _ = Role.objects.get_or_create(
-                        id=role['id'],
+                        role_id=role['id'],
                         name=role['name'],
                         position=role['position'],
                         colour=f"#{hex(role['colour']).lstrip('0x')}"

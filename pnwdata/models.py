@@ -140,9 +140,10 @@ class Bank(Resources):
 
 
 class AllianceMember(Resources):
+    credits = models.FloatField()
+
     nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)
 
-    credits = models.FloatField()
     cityprojecttimerturns = models.IntegerField(null=True)
     update_tz = models.IntegerField(null=True)
 

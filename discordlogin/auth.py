@@ -1,8 +1,8 @@
-from django.contrib.auth.backends import BaseBackend
+from django.contrib.auth.backends import ModelBackend
 from .models import User
 
 
-class DiscordAuthenticationBackend(BaseBackend):
+class DiscordAuthenticationBackend(ModelBackend):
     def authenticate(self, request, user):
         find_user = User.objects.filter(id=user['id'])
         if len(find_user) == 0:
