@@ -55,9 +55,9 @@ class LoanAdmin(admin.ModelAdmin):
     readonly_fields = ['payed_on']
 
 
-@admin.register(Deposit)
+@admin.register(Holdings)
 class DepositAdmin(admin.ModelAdmin):
     autocomplete_fields = ['nation']
-    list_display = ('__str__', 'deposited_on',)
+    list_display = ('__str__', 'money',)
 
-    readonly_fields = ['deposited_on']
+    readonly_fields = ['last_updated']

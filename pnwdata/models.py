@@ -169,6 +169,21 @@ class Loan(Resources):
         return 'Loan by %s (%s)' % (self.nation.nation, self.nation.nationid)
 
 
-class Deposit(Resources):
-    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
-    deposited_on = models.DateField(auto_now_add=True)
+class Holdings(Resources):
+    nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'holdings'
+        verbose_name_plural = 'holdings'
+    
+    def save(self, *args, **kw):
+        model_fields = [f.name for f in self._meta.get_fields() if isinstance(f, models.fields.FloatField)]
+        projects = {k: v for k, v in self.__dict__.items() if k in model_fields}
+        if sum(projects.values()) <= 0:
+            self.delete()
+        else:
+            super(Holdings, self).save(*args, **kw)
+
+    def __str__(self):
+        return '%s (%s) Holdings' % (self.nation.nation, self.nation.nationid)
