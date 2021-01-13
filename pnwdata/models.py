@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
+from .tasks import send_message
 
 
 # noinspection PyProtectedMember
@@ -304,7 +305,12 @@ class Request(Resources):
             new_withdraw_object = Withdraw(**filter_kwargs(Resources, self.__dict__))
             new_withdraw_object.nation = self.nation
             new_withdraw_object.save()
+            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} ACCEPTED", message=f"{filter_kwargs(Resources, self.__dict__)}")
         super(Request, self).save(*args, **kw)
+        if self.status == 'N':
+            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} DECLINED", message=f"{filter_kwargs(Resources, self.__dict__)}")
+        else:
+            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} PROCESSING", message=f"{filter_kwargs(Resources, self.__dict__)}")
 
     def __str__(self):
         return f'{self.request_type} by {self.nation.nation} ({self.nation.nationid})'
