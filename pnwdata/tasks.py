@@ -1,6 +1,8 @@
 import configparser
 import gspread
 from pathlib import Path
+
+import requests
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timezone
 from celery import shared_task
@@ -22,6 +24,12 @@ def get_nation(nation_id: int) -> object:
     url = endpoint_url('nation', f'id={nation_id}')
     data = call_api(url)
     return data
+
+
+@shared_task()
+def send_message(nation_id: int, subject: str, message: str):
+    url = 'http://politicsandwar.com/api/send-message'
+    requests.post(url, {'key': str(config.get('pnw', 'API_KEY')), 'to': nation_id, 'subject': subject, 'message': message})
 
 
 @shared_task()
