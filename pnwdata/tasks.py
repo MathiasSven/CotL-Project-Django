@@ -104,21 +104,19 @@ def push_to_sheets():
     members = []
     for alliance_member_object in AllianceMember.objects.all():
         members.append([
-            alliance_member_object.nation.name,
-            f"https://politicsandwar.com/nation/id={alliance_member_object.nation.id}",
-            alliance_member_object.nation.id,
+            alliance_member_object.nation.nation,
+            f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
+            alliance_member_object.nation.nationid,
             alliance_member_object.nation.leader,
-            alliance_member_object.nation.city_count,
+            alliance_member_object.nation.cities,
             alliance_member_object.nation.score,
+            alliance_member_object.nation.minutessinceactive,
+            alliance_member_object.cityprojecttimerturns,
             alliance_member_object.nation.infrastructure,
             alliance_member_object.nation.nationmilitary.soldiers,
             alliance_member_object.nation.nationmilitary.tanks,
             alliance_member_object.nation.nationmilitary.aircraft,
             alliance_member_object.nation.nationmilitary.ships,
-            alliance_member_object.nation.minutes_since_active,
-            alliance_member_object.city_project_timer_turns,
-            'WIP',
-            alliance_member_object.nation.name,
             alliance_member_object.nation.nationmilitary.missiles,
             alliance_member_object.nation.nationmilitary.nukes,
         ])

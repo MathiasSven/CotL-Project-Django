@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 
 
 # noinspection PyProtectedMember
@@ -173,10 +174,38 @@ class Holdings(Resources):
     nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)
     last_updated = models.DateTimeField(auto_now=True)
 
+    def available_holdings(self):
+        withdraw_requests = Request.objects.filter(nation=self.nation, status=None)
+        holdings_dict = filter_kwargs(Resources, self.__dict__)
+        if not withdraw_requests:
+            return holdings_dict
+        for withdraw_request in withdraw_requests:
+            withdraw_dict = withdraw_request.__dict__
+            for key in holdings_dict:
+                if key in withdraw_dict:
+                    holdings_dict[key] -= withdraw_dict[key]
+                else:
+                    pass
+        return holdings_dict
+
+    def frozen_holdings(self):
+        withdraw_requests = Request.objects.filter(nation=self.nation, status=None)
+        if not withdraw_requests:
+            return
+        withdraws_dict = {f.name: 0 for f in Resources._meta.get_fields()}
+        for withdraw_request in withdraw_requests:
+            withdraw_dict = withdraw_request.__dict__
+            for key in withdraws_dict:
+                if key in withdraw_dict:
+                    withdraws_dict[key] += withdraw_dict[key]
+                else:
+                    pass
+        return withdraws_dict
+
     class Meta:
         verbose_name = 'holdings'
         verbose_name_plural = 'holdings'
-    
+
     def save(self, *args, **kw):
         model_fields = [f.name for f in self._meta.get_fields() if isinstance(f, models.fields.FloatField)]
         projects = {k: v for k, v in self.__dict__.items() if k in model_fields}
@@ -187,3 +216,95 @@ class Holdings(Resources):
 
     def __str__(self):
         return '%s (%s) Holdings' % (self.nation.nation, self.nation.nationid)
+
+
+class Deposit(Resources):
+    tx_id = models.BigIntegerField(null=True, unique=True)
+    deposited_on = models.DateTimeField(default=now)
+    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+
+    def save(self, *args, **kw):
+        if not self._state.adding:
+            return None
+
+        deposit_dict = filter_kwargs(Resources, self.__dict__)
+        holding_exists = Holdings.objects.filter(nation=self.nation)
+        if holding_exists:
+            holding_dict = holding_exists[0].__dict__
+            for key in holding_dict:
+                if key in deposit_dict:
+                    deposit_dict[key] += holding_dict[key]
+                else:
+                    pass
+            holding_exists.update(**filter_kwargs(Resources, deposit_dict))
+        else:
+            Holdings.objects.create(
+                nation=self.nation, **filter_kwargs(Resources, deposit_dict))
+
+        super(Deposit, self).save(*args, **kw)
+
+    def __str__(self):
+        return f'Deposit ({self.tx_id}) by {self.nation.nation} ({self.nation.nationid})'
+
+
+class Withdraw(Resources):
+    tx_id = models.BigIntegerField(null=True, unique=True)
+    withdrew_on = models.DateTimeField(default=now)
+    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+
+    def save(self, *args, **kw):
+        if not self._state.adding:
+            return None
+
+        withdraw_dict = filter_kwargs(Resources, self.__dict__)
+        holding_exists = Holdings.objects.filter(nation=self.nation)
+        holding_object = holding_exists[0]
+        if holding_exists:
+            holding_dict = holding_object.__dict__
+            for key in holding_dict:
+                if key in withdraw_dict:
+                    holding_dict[key] -= withdraw_dict[key]
+                else:
+                    pass
+            holding_dict.pop('_state')
+            holding_exists.update(**filter_kwargs(Resources, holding_dict))
+
+        super(Withdraw, self).save(*args, **kw)
+
+
+class Request(Resources):
+    STATUS_CHOICES = [
+        ('Y', 'ACCEPTED'),
+        ('N', 'DECLINED'),
+        (None, 'PROCESSING')
+    ]
+
+    REQUEST_TYPE_CHOICES = [
+        ('AID', 'Aid Request'),
+        ('WITHDRAW', 'Withdraw Request'),
+        ('LOAN', 'Loan Request')
+    ]
+
+    request_on = models.DateTimeField(auto_now=True)
+    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+    request_type = models.CharField(max_length=20, choices=REQUEST_TYPE_CHOICES)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=None, null=True)
+
+    def request_link(self):
+
+        request_link = f"https://politicsandwar.com/alliance/id=7452&display=bank&w_type=nation&w_recipient={self.nation.nation.replace(' ', '%20')}&w_note={self.request_type}"
+        res_dict = filter_kwargs(Resources, self.__dict__)
+        for res in res_dict:
+            request_link += f"&w_{res}={int(res_dict[res])}"
+            return request_link
+
+    def save(self, *args, **kw):
+        if self.status == 'Y':
+            new_withdraw_object = Withdraw(**filter_kwargs(Resources, self.__dict__))
+            new_withdraw_object.nation = self.nation
+            new_withdraw_object.save()
+        super(Request, self).save(*args, **kw)
+
+    def __str__(self):
+        return f'{self.request_type} by {self.nation.nation} ({self.nation.nationid})'
