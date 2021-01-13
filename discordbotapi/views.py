@@ -1,10 +1,13 @@
 import json
+from datetime import datetime, timezone
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import APIKey
 from cotlsite.models import Member, Role, MemberNation
+
+from pnwdata.models import *
 
 
 # noinspection DuplicatedCode
@@ -22,7 +25,7 @@ def member_join(request):
 
             tmp_member.save()
             for role in member['roles']:
-                tmp_role = Role.objects.get(id=role['id'])
+                tmp_role = Role.objects.get(role_id=role['id'])
                 tmp_member.roles.add(tmp_role)
             return JsonResponse({
                 "POST": "Member creation successful"
@@ -78,7 +81,7 @@ def member_update(request):
                 roles = member['roles']
                 tmp_member.roles.clear()
                 for role in roles:
-                    tmp_role, _ = Role.objects.get_or_create(id=role['id'])
+                    tmp_role, _ = Role.objects.get_or_create(role_id=role['id'])
                     tmp_role.name = role['name']
                     tmp_role.position = role['position']
                     tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
@@ -134,7 +137,7 @@ def role_create(request):
         if APIKey.check_key(request.headers['X-Api-Key']):
             role = json.loads(request.body)
             Role.objects.create(
-                id=role['id'],
+                role_id=role['id'],
                 name=role['name'],
                 position=role['position'],
                 colour=f"#{hex(role['colour']).lstrip('0x')}"
@@ -158,7 +161,7 @@ def role_remove(request):
         if APIKey.check_key(request.headers['X-Api-Key']):
             role = json.loads(request.body)
             try:
-                Role.objects.get(id=role['id']).delete()
+                Role.objects.get(role_id=role['id']).delete()
             except Role.DoesNotExist:
                 return JsonResponse({
                     "error": "Tried to remove a role that didn't exist"
@@ -182,13 +185,13 @@ def role_update(request):
         if APIKey.check_key(request.headers['X-Api-Key']):
             role = json.loads(request.body)
             try:
-                tmp_role = Role.objects.get(id=role['id'])
+                tmp_role = Role.objects.get(role_id=role['id'])
                 tmp_role.name = role['name']
                 tmp_role.position = role['position']
                 tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
                 tmp_role.save()
             except Role.DoesNotExist:
-                Role.objects.create(id=role['id'], name=role['name'], position=role['position'], colour=f"#{hex(role['colour']).lstrip('0x')}")
+                Role.objects.create(role_id=role['id'], name=role['name'], position=role['position'], colour=f"#{hex(role['colour']).lstrip('0x')}")
             return JsonResponse({
                 "PUT": "Successful"
             }, status=200)
@@ -218,7 +221,7 @@ def members_bulk(request):
                 tmp_member.save()
                 for role in member['roles']:
                     tmp_role, _ = Role.objects.get_or_create(
-                        id=role['id'],
+                        role_id=role['id'],
                         name=role['name'],
                         position=role['position'],
                         colour=f"#{hex(role['colour']).lstrip('0x')}"
@@ -263,3 +266,94 @@ def link_nation(request):
         return JsonResponse({
             "error": "POST request required."
         }, status=405)
+
+
+@csrf_exempt
+def bank_deposit(request):
+    if request.method == 'POST':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            nation, _ = Nation.objects.get_or_create(nationid=data['sender_id'])
+            data['nation'] = nation
+            data['deposited_on'] = datetime.strptime(data.pop('tx_datetime'), '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
+            deposit_object, new = Deposit.objects.update_or_create(
+                tx_id=data['tx_id'], defaults=filter_kwargs(Deposit, data)
+            )
+            if not new:
+                return JsonResponse({
+                    "error": "Tx_id already registered."
+                }, status=409)
+            else:
+                return JsonResponse({
+                    "POST": "Successful"
+                }, status=201)
+
+
+@csrf_exempt
+def bank_withdraw(request):
+    if request.method == 'POST':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            nationid = data.pop('nationid')
+            nation, _ = Nation.objects.get_or_create(nationid=nationid)
+
+            holding_exists = Holdings.objects.filter(nation=nation)
+            if holding_exists:
+                available_holdings = holding_exists[0].available_holdings()
+                for resource in data:
+                    if available_holdings[resource] - int(data[resource]) < 0:
+                        return JsonResponse({
+                            "error": "Cannot withdraw more then available."
+                        }, status=403)
+                request_object = Request(nation=nation, request_type='WITHDRAW', **data)
+                request_object.save()
+                return JsonResponse({
+                    "POST": "Successful"
+                }, status=201)
+            else:
+                return JsonResponse({
+                    "error": "Holdings does not exist."
+                }, status=404)
+
+
+@csrf_exempt
+def bank_holdings(request):
+    if request.method == 'GET':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            nation, _ = Nation.objects.get_or_create(nationid=data['nationid'])
+
+            holding_exists = Holdings.objects.filter(nation=nation)
+            if holding_exists:
+                holding_dict = holding_exists[0].__dict__
+                holding_dict.pop('_state')
+                return JsonResponse(holding_dict, status=200)
+            else:
+                return JsonResponse({
+                    "error": "Holdings does not exist."
+                }, status=404)
+
+
+@csrf_exempt
+def bank_loan(request):
+    if request.method == 'POST':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            pass
+
+
+@csrf_exempt
+def bank_ava_holdings(request):
+    if request.method == 'GET':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            nation, _ = Nation.objects.get_or_create(nationid=data['nationid'])
+
+            holding_exists = Holdings.objects.filter(nation=nation)
+            if holding_exists:
+                tmp_dict = holding_exists[0].available_holdings()
+                tmp_dict['nation_id'] = nation.nationid
+                return JsonResponse(tmp_dict, status=200)
+            else:
+                return JsonResponse({
+                    "error": "Holdings does not exist."
+                }, status=404)

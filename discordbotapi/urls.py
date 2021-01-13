@@ -12,4 +12,11 @@ urlpatterns = [
     path("role-update", views.role_update, name="role_update"),
     path("members-bulk", views.members_bulk, name="members_bulk"),
     path("link-nation", views.link_nation, name="link_nation"),
+
+    path("bank-deposit", views.bank_deposit, name="bank_deposit"),
+    path("bank-withdraw", views.bank_withdraw, name="bank_withdraw"),
+    path("bank-holdings", views.bank_holdings, name="bank_holdings"),
+    path("bank-loan", views.bank_loan, name="bank_loan"),
+
+    path("bank-ava-holdings", views.bank_ava_holdings, name="bank-ava-holdings"),
 ]

@@ -9,7 +9,20 @@ PASSWORD =
 HOST =
 PORT =
 
+[celery]
+CELERY_BROKER_URL =
+
 [discordlogin]
 DISCORD_CLIENT_ID =
 DISCORD_REDIRECT_URI =
 SCOPE =
+
+[googlesheets]
+SHEET_KEY =
+DATA_DUMP_NAME =
+
+[pnw]
+ALLIANCE_ID =
+OFFSHORE_ID =
+API_KEY =
+OFFSHORE_KEY =

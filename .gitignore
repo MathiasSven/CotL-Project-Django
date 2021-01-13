@@ -51,6 +51,7 @@ wheels/
 *.egg
 *.sqlite3
 config.ini
+credentials.json
 
 tmp/
 public/

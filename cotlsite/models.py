@@ -1,21 +1,27 @@
-import os
+import configparser
 import requests
+from pathlib import Path
 from datetime import datetime
 
+from django.contrib.auth.models import Group
 from django.db import models
 
 from colorfield.fields import ColorField
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 
 from discordlogin.models import User as UserModel
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+config = configparser.ConfigParser()
+config.read(f"{BASE_DIR}/config.ini")
 
 
 class Member(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=32, null=True)
     discriminator = models.CharField(max_length=4, null=True)
-    avatar = models.CharField(max_length=100, blank=True)
-    nick = models.CharField(max_length=32, blank=True)
+    avatar = models.CharField(max_length=100, blank=True, null=True)
+    nick = models.CharField(max_length=32, blank=True, null=True)
     roles = models.ManyToManyField('Role')
 
     @classmethod
@@ -44,6 +50,15 @@ class Member(models.Model):
                 avatar=instance.avatar,
             )
 
+    @staticmethod
+    def change_roles(instance, action, **kwargs):
+        if action == "post_add":
+            try:
+                find_user = UserModel.objects.get(id=instance.id)
+            except UserModel.DoesNotExist:
+                return
+            find_user.groups.set(instance.roles.all())
+
     def display_name(self):
         if self.nick is None:
             return self.name
@@ -57,11 +72,11 @@ class Member(models.Model):
 # Member User Connectors
 post_save.connect(Member.post_login_create, sender=UserModel)
 post_save.connect(Member.post_member_save, sender=Member)
+m2m_changed.connect(Member.change_roles, sender=Member.roles.through)
 
 
-class Role(models.Model):
-    id = models.BigIntegerField(primary_key=True)
-    name = models.CharField(max_length=32)
+class Role(Group):
+    role_id = models.BigIntegerField(primary_key=True)
     position = models.IntegerField(null=True)
     colour = ColorField()
 
@@ -69,7 +84,7 @@ class Role(models.Model):
         ordering = ['-position']
 
     def __str__(self):
-        return '%s (%s)' % (self.name, self.id)
+        return '%s (%s)' % (self.name, self.role_id)
 
 
 class MemberNation(models.Model):
@@ -84,7 +99,7 @@ class MemberNation(models.Model):
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):
         if created:
-            fetched_data = requests.get(f"http://politicsandwar.com/api/nation/id={instance.nation_id}&key={os.getenv('PNW_API_KEY')}")
+            fetched_data = requests.get(f"http://politicsandwar.com/api/nation/id={instance.nation_id}&key={config.get('pnw', 'API_KEY')}")
             fetched_data = fetched_data.json()
 
             if not fetched_data['success']:

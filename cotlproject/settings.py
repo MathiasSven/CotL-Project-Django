@@ -43,10 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
+    'django_celery_results',
     'colorfield',
     'cotlsite.apps.CotlsiteConfig',
     'discordlogin.apps.DiscordloginConfig',
     'discordbotapi.apps.DiscordbotapiConfig',
+    'pnwdata.apps.PnwdataConfig',
 ]
 
 MIDDLEWARE = [
@@ -126,3 +129,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 LOGIN_URL = DISCORD_LOGIN_URI
+
+CELERY_BROKER_URL = config.get('celery', 'CELERY_BROKER_URL')
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'

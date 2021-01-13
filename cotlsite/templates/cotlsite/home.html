@@ -37,12 +37,12 @@
 
     <a class="aa-symbol-parent" href="https://politicsandwar.com/alliance/id=7452" target="_blank"><img id="aa-symbol" src="{% static 'cotlsite/images/aa-symbol.png' %}" alt="AA Symbol"></a>
 
-{#    <div class="princess"></div>#}
+    {#    <div class="princess"></div>#}
 
     <img id="children-of-the-light" src="{% static 'cotlsite/images/children-of-the-light.png' %}" alt="Children of the Light">
 
-{#    <iframe src="https://discord.com/widget?id=458692561574297660&theme=dark{% if user.is_authenticated %}&username={{ user.id }}{% endif %}" width="350" height="500" allowtransparency="true" frameborder="0"#}
-{#            sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>#}
+    {#    <iframe src="https://discord.com/widget?id=458692561574297660&theme=dark{% if user.is_authenticated %}&username={{ user.id }}{% endif %}" width="350" height="500" allowtransparency="true" frameborder="0"#}
+    {#            sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>#}
 
     <button id="play-pause-button">
         <span id="play-button"><i class="fas fa-play"></i></span>
@@ -51,5 +51,11 @@
 {% endblock %}
 
 {% block footer %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>Work in Progress!</strong> This page does not lead anywhere at the moment.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
     <script src="{% static 'cotlsite/js/index.js' %}"></script>
 {% endblock %}

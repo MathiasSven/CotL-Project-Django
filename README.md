@@ -3,4 +3,4 @@
 # CotL Project (Django)
 Children of the Light Website using Django and Discord
 
-ENVS: SECRET_KEY, DISCORD_CLIENT_SECRET, PNW_API_KEY
+ENVS: SECRET_KEY, DISCORD_CLIENT_SECRET
