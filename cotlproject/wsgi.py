@@ -13,6 +13,6 @@ from django.core.wsgi import get_wsgi_application
 
 from dj_static import Cling
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cotlproject.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'cotlproject.production')
 
 application = Cling(get_wsgi_application())
