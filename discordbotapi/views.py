@@ -251,7 +251,7 @@ def link_nation(request):
             except Member.DoesNotExist:
                 return JsonResponse({
                     "error": "Member is not on the database"
-                }, status=500)
+                }, status=404)
             linking_nation, _ = MemberNation.objects.get_or_create(nation_id=data['nation_id'])
             linking_nation.discord_member = member_to_link
             linking_nation.save()

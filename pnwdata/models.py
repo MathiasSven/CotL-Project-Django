@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.timezone import now
-from .tasks import send_message
 
 
 # noinspection PyProtectedMember
@@ -301,6 +300,7 @@ class Request(Resources):
             return request_link
 
     def save(self, *args, **kw):
+        from .tasks import send_message
         if self.status == 'Y':
             new_withdraw_object = Withdraw(**filter_kwargs(Resources, self.__dict__))
             new_withdraw_object.nation = self.nation
