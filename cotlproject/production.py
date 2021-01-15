@@ -147,7 +147,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = 'staticfiles'
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'cotlsite/static/')
+    os.path.join(BASE_DIR, 'cotlsite/static/'),
 )
 
 LOGIN_URL = DISCORD_LOGIN_URI
