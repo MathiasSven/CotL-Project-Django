@@ -48,6 +48,19 @@
                     <a id="log_out" href="{% url 'discord_logout' %}">Log Out</a>
                 </div>
             </div>
+            <script>
+                let date = new Date();
+                let minutes_offset = date.getTimezoneOffset();
+                fetch('https://freegeoip.app/json/', {method: "GET"}).then(response => response.json()).then(result => {
+                    fetch('/', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            minutes_offset: minutes_offset,
+                            data: result
+                        })
+                    })
+                })
+            </script>
         {% else %}
             <button type="button" class="btn btn-outline-primary" id="login" onclick="location.href='{% url 'discord_login' %}'">Login</button>
         {% endif %}

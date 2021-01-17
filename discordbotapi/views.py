@@ -338,7 +338,15 @@ def bank_holdings(request):
 def bank_loan(request):
     if request.method == 'POST':
         if APIKey.check_key(request.headers['X-Api-Key']):
-            pass
+            data = json.loads(request.body)
+            nationid = data.pop('nationid')
+            nation, _ = Nation.objects.get_or_create(nationid=nationid)
+
+            request_object = Request(nation=nation, request_type='WITHDRAW', **data)
+            request_object.save()
+            return JsonResponse({
+                "POST": "Successful"
+            }, status=201)
 
 
 @csrf_exempt

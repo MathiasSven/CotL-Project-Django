@@ -291,26 +291,37 @@ class Request(Resources):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=None, null=True)
 
+    # pay_by = models.DateField(null=True, blank=True)
+
     def request_link(self):
 
         request_link = f"https://politicsandwar.com/alliance/id=7452&display=bank&w_type=nation&w_recipient={self.nation.nation.replace(' ', '%20')}&w_note={self.request_type}"
         res_dict = filter_kwargs(Resources, self.__dict__)
         for res in res_dict:
             request_link += f"&w_{res}={int(res_dict[res])}"
-            return request_link
+        return request_link
 
     def save(self, *args, **kw):
         from .tasks import send_message
         if self.status == 'Y':
-            new_withdraw_object = Withdraw(**filter_kwargs(Resources, self.__dict__))
-            new_withdraw_object.nation = self.nation
-            new_withdraw_object.save()
+            if self.request_type == "WITHDRAW":
+                new_withdraw_object = Withdraw(**filter_kwargs(Resources, self.__dict__))
+                new_withdraw_object.nation = self.nation
+                new_withdraw_object.save()
+            if self.request_type == "LOAN":
+                new_loan_object = Withdraw(**filter_kwargs(Loan, self.__dict__))
+                new_loan_object.nation = self.nation
+                new_loan_object.save()
             send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} ACCEPTED", message=f"{filter_kwargs(Resources, self.__dict__)}")
-        super(Request, self).save(*args, **kw)
         if self.status == 'N':
             send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} DECLINED", message=f"{filter_kwargs(Resources, self.__dict__)}")
         else:
             send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} PROCESSING", message=f"{filter_kwargs(Resources, self.__dict__)}")
+        super(Request, self).save(*args, **kw)
 
     def __str__(self):
         return f'{self.request_type} by {self.nation.nation} ({self.nation.nationid})'
+
+
+# class Activity(models.Model):
+#     nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)

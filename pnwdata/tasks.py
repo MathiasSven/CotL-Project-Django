@@ -28,8 +28,9 @@ def get_nation(nation_id: int) -> object:
 
 @shared_task()
 def send_message(nation_id: int, subject: str, message: str):
-    url = 'http://politicsandwar.com/api/send-message'
-    requests.post(url, {'key': str(config.get('pnw', 'API_KEY')), 'to': nation_id, 'subject': subject, 'message': message})
+    url = 'https://politicsandwar.com/api/send-message/'
+    response = requests.post(url, {'key': str(config.get('pnw', 'API_KEY')), 'to': nation_id, 'subject': subject, 'message': message})
+    return response.text
 
 
 @shared_task()
@@ -91,6 +92,9 @@ def update_alliance_members():
             nation=nation_object, defaults=filter_kwargs(Projects, nation)
         )
         military_object, _ = NationMilitary.objects.update_or_create(
+            nation=nation_object, defaults=filter_kwargs(NationMilitary, nation)
+        )
+        activity_object, _ = NationMilitary.objects.update_or_create(
             nation=nation_object, defaults=filter_kwargs(NationMilitary, nation)
         )
     # Deletes ex-members

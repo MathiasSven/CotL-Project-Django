@@ -16,6 +16,12 @@ config = configparser.ConfigParser()
 config.read(f"{BASE_DIR}/config.ini")
 
 
+# noinspection PyProtectedMember
+def filter_kwargs(model, arg_dict):
+    model_fields = [f.name for f in model._meta.get_fields()]
+    return {k: v for k, v in arg_dict.items() if k in model_fields}
+
+
 class Member(models.Model):
     id = models.BigIntegerField(primary_key=True)
     name = models.CharField(max_length=32, null=True)
