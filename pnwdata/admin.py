@@ -97,6 +97,7 @@ class WithdrawAdmin(admin.ModelAdmin):
 class RequestAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'request_on', 'status')
     list_filter = ('status',)
+    # exclude = ('pcname',)
 
     @staticmethod
     def request_link(obj):
