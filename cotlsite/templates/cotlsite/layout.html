@@ -29,10 +29,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
             crossorigin="anonymous"></script>
 
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+
     {% block head %}
     {% endblock %}
 </head>
 <body>
+<loader>
+    <img src="{% static 'cotlsite/images/aa-symbol.png' %}" alt="AA Symbol">
+    <script>
+        $(window).on("load", function () {
+            $("loader").fadeOut("slow", "swing");
+        });
+    </script>
+</loader>
 <header>
     {% block header %}
     {% endblock %}

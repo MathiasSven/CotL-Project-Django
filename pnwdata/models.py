@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
+from datetime import datetime, timedelta
 
 
 # noinspection PyProtectedMember
@@ -150,8 +151,51 @@ class AllianceMember(Resources):
 
     last_updated = models.DateTimeField(auto_now=True)
 
+    def active_days_since(self, days_ago=0):
+        active_days = 0
+        for i in range(days_ago + 1):
+            if self.activity_set.filter(active_datetime__date=datetime.utcnow() - timedelta(days=i)):
+                active_days += 1
+        return active_days
+
+    def activity_on(self, date: datetime):
+        return self.activity_set.filter(active_datetime__date=date)
+
+    def get_activity(self):
+        activity = self.activity_set.all().order_by('active_datetime')
+        data = {"nationid": self.nation.nationid, "activity": {}}
+        activity_dict = data["activity"]
+        for activity_object in activity:
+
+            year = activity_object.active_datetime.year
+            month = activity_object.active_datetime.month
+            day = activity_object.active_datetime.day
+
+            if year not in activity_dict.keys():
+                activity_dict[year] = {}
+            if month not in activity_dict[year].keys():
+                activity_dict[year][month] = {}
+            if day not in activity_dict[year][month].keys():
+                activity_dict[year][month][day] = 1
+            else:
+                activity_dict[year][month][day] += 1
+
+        return data
+
+    class Meta:
+        ordering = ['nation__nationid']
+
     def __str__(self):
         return '%s (%s) Alliance Member' % (self.nation.nation, self.nation.nationid)
+
+
+class Activity(models.Model):
+    nation = models.ForeignKey(AllianceMember, on_delete=models.CASCADE)
+    active_datetime = models.DateTimeField()
+
+    class Meta:
+        verbose_name = 'activity'
+        verbose_name_plural = 'activity'
 
 
 class Loan(Resources):
@@ -291,7 +335,7 @@ class Request(Resources):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=None, null=True)
 
-    # pay_by = models.DateField(null=True, blank=True)
+    pay_by = models.DateField(null=True, blank=True)
 
     def request_link(self):
 
@@ -321,7 +365,3 @@ class Request(Resources):
 
     def __str__(self):
         return f'{self.request_type} by {self.nation.nation} ({self.nation.nationid})'
-
-
-# class Activity(models.Model):
-#     nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)

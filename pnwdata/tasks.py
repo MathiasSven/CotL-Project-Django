@@ -4,7 +4,7 @@ from pathlib import Path
 
 import requests
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from celery import shared_task
 
 from .serializer import call_api
@@ -75,10 +75,22 @@ def update_alliance_members():
     url = endpoint_url('alliance-members', f"?allianceid={config.get('pnw', 'ALLIANCE_ID')}")
     data = call_api(url)
 
+    data_get_datetime = datetime.now(timezone.utc)
+
+    def create_activity_instance(minutessinceactive):
+        active_datetime = data_get_datetime - timedelta(minutes=minutessinceactive)
+        Activity.objects.create(active_datetime=active_datetime)
+
     for nation in data['nations']:
         nation.pop('alliance', None)
+        nation_object, _ = Nation.objects.objects.get_or_create(nationid=nation['nationid'])
 
-        nation_object, _ = Nation.objects.update_or_create(nationid=nation['nationid'], defaults=filter_kwargs(Nation, nation))
+        if nation_object.minutessinceactive is None:
+            create_activity_instance(nation['minutessinceactive'])
+        elif nation_object.minutessinceactive > nation['minutessinceactive']:
+            create_activity_instance(nation['minutessinceactive'])
+
+        nation_object.__dict__.update(filter_kwargs(Nation, nation))
         alliance, _ = Alliance.objects.get_or_create(id=nation['allianceid'])
         nation_object.alliance = alliance
         nation_object.save()
@@ -92,9 +104,6 @@ def update_alliance_members():
             nation=nation_object, defaults=filter_kwargs(Projects, nation)
         )
         military_object, _ = NationMilitary.objects.update_or_create(
-            nation=nation_object, defaults=filter_kwargs(NationMilitary, nation)
-        )
-        activity_object, _ = NationMilitary.objects.update_or_create(
             nation=nation_object, defaults=filter_kwargs(NationMilitary, nation)
         )
     # Deletes ex-members
@@ -149,3 +158,31 @@ def changeup():
     sheet = client.open_by_key('1mZuzUY6A5Day38gkTbuxeGiNyRf3v3eFJvX0fmSFBvQ')
     data_dump_worksheet_name = 'Data Dump'
     data_dump_worksheet = sheet.worksheet(data_dump_worksheet_name)
+
+    sheet.values_clear(f"{data_dump_worksheet_name}!A2:{gspread.utils.rowcol_to_a1(100, 29)}")
+
+    members = []
+    for alliance_member_object in AllianceMember.objects.all():
+        members.append([
+            alliance_member_object.nation.nation,
+            f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
+            alliance_member_object.nation.nationid,
+            alliance_member_object.nation.leader,
+            alliance_member_object.nation.cities,
+            alliance_member_object.nation.score,
+            alliance_member_object.nation.minutessinceactive,
+            alliance_member_object.cityprojecttimerturns,
+            alliance_member_object.nation.infrastructure,
+            alliance_member_object.nation.nationmilitary.soldiers,
+            alliance_member_object.nation.nationmilitary.tanks,
+            alliance_member_object.nation.nationmilitary.aircraft,
+            alliance_member_object.nation.nationmilitary.ships,
+            alliance_member_object.nation.nationmilitary.missiles,
+            alliance_member_object.nation.nationmilitary.nukes,
+        ])
+    update_range = f"A2:{gspread.utils.rowcol_to_a1(len(members) + 1, 18)}"
+    print(len(members))
+    data_dump_worksheet.batch_update([{
+        'range': update_range,
+        'values': members,
+    }])
