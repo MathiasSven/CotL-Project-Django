@@ -77,18 +77,15 @@ def update_alliance_members():
 
     data_get_datetime = datetime.now(timezone.utc)
 
-    def create_activity_instance(minutessinceactive):
+    def create_activity_instance(minutessinceactive, _alliance_member_object):
         active_datetime = data_get_datetime - timedelta(minutes=minutessinceactive)
-        Activity.objects.create(active_datetime=active_datetime)
+        Activity.objects.create(nation=_alliance_member_object, active_datetime=active_datetime)
 
     for nation in data['nations']:
         nation.pop('alliance', None)
         nation_object, _ = Nation.objects.get_or_create(nationid=nation['nationid'])
 
-        if nation_object.minutessinceactive is None:
-            create_activity_instance(nation['minutessinceactive'])
-        elif nation_object.minutessinceactive > nation['minutessinceactive']:
-            create_activity_instance(nation['minutessinceactive'])
+        previous_minutessinceactive = nation_object.minutessinceactive
 
         nation_object.__dict__.update(filter_kwargs(Nation, nation))
         alliance, _ = Alliance.objects.get_or_create(id=nation['allianceid'])
@@ -106,6 +103,12 @@ def update_alliance_members():
         military_object, _ = NationMilitary.objects.update_or_create(
             nation=nation_object, defaults=filter_kwargs(NationMilitary, nation)
         )
+
+        if previous_minutessinceactive is None:
+            create_activity_instance(nation['minutessinceactive'], alliance_member_object)
+        elif previous_minutessinceactive > nation['minutessinceactive']:
+            create_activity_instance(nation['minutessinceactive'], alliance_member_object)
+
     # Deletes ex-members
     AllianceMember.objects.exclude(nation_id__in=[nation['nationid'] for nation in data['nations']]).delete()
 
