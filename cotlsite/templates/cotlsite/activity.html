@@ -1,0 +1,47 @@
+{% extends 'cotlsite/layout.html' %}
+{% load static %}
+
+{% block head %}
+    <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{% static 'cotlsite/css/activity.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div id="calendar">
+
+        <form action="" name="AllianceMember">
+            <p>Pick nation by name or ID:</p>
+            {{ form.nation }}
+            {{ form.media }}
+        </form>
+
+        <div id="calendar_header"><i class="icon-chevron-left">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"></path>
+            </svg>
+        </i>
+            <h1></h1><i class="icon-chevron-right">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"></path>
+                </svg>
+            </i></div>
+        <div id="calendar_weekdays"></div>
+        <div id="calendar_content"></div>
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+            <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"></path>
+        </svg>
+
+        <div class="legend">
+            <p><span class="legend_3"></span> - User logged in 4 or more times.</p>
+            <p><span class="legend_2"></span> - User logged twice or thrice.</p>
+            <p><span class="legend_1"></span> - User logged once.</p>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script type="text/javascript" src="{% static 'cotlsite/js/activity.js' %}"></script>
+{% endblock %}
