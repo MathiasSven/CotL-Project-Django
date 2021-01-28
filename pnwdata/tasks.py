@@ -83,7 +83,7 @@ def update_alliance_members():
 
     for nation in data['nations']:
         nation.pop('alliance', None)
-        nation_object, _ = Nation.objects.objects.get_or_create(nationid=nation['nationid'])
+        nation_object, _ = Nation.objects.get_or_create(nationid=nation['nationid'])
 
         if nation_object.minutessinceactive is None:
             create_activity_instance(nation['minutessinceactive'])
