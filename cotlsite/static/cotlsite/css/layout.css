@@ -53,7 +53,7 @@ html {
     -o-background-size: cover;
     background-size: cover;
 
-    min-width: 1100px;
+    /*min-width: 1100px;*/
 }
 
 .user_handler {

@@ -127,7 +127,13 @@ $(function () {
         if (activity_array[year] !== undefined) {
             if (activity_array[year][month] !== undefined) {
                 for (const [key, value] of Object.entries(activity_array[year][month])) {
-                    if (value === 1) {active_type = "active_1"} else if (value <= 3) {active_type = "active_2"} else {active_type = "active_3"}
+                    if (value === 1) {
+                        active_type = "active_1"
+                    } else if (value <= 3) {
+                        active_type = "active_2"
+                    } else {
+                        active_type = "active_3"
+                    }
                     calendar_content.find(`div:contains("${key}")`).toggleClass(active_type);
                 }
             }
@@ -151,7 +157,11 @@ $(function () {
         get_and_apply_activity_data(nation_chosen);
     });
 
-    $('.bi-question-circle').on('click', function() {
-        $('.legend').css('visibility', 'visible')
+    $('.bi-question-circle').on('click', function () {
+        let legend_element = $('.legend')
+        if (legend_element.css('visibility') === 'hidden')
+            legend_element.css('visibility', 'visible')
+        else
+            legend_element.css('visibility', 'hidden')
     })
 })
