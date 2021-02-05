@@ -23,7 +23,7 @@ $(function () {
                 calendar_content.append('<div class="blank"></div>')
             } else {
                 let v = array_days[c].day;
-                let m = check_if_today(new Date(year, month - 1, v)) ? '<div class="today">' : "<div>";
+                let m = check_if_today(new Date(year, month - 1, v)) ? `<div id=${v} class="today">` : `<div id=${v}>`;
                 calendar_content.append(m + "" + v + "</div>")
             }
         }
@@ -134,7 +134,7 @@ $(function () {
                     } else {
                         active_type = "active_3"
                     }
-                    calendar_content.find(`div:contains("${key}")`).toggleClass(active_type);
+                    $(`#${key}`).toggleClass(active_type);
                 }
             }
         }
