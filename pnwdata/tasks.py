@@ -1,9 +1,12 @@
+from django.core.exceptions import ValidationError
+
 import configparser
 import gspread
 from pathlib import Path
 
 import requests
 from oauth2client.service_account import ServiceAccountCredentials
+from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from celery import shared_task
 
@@ -114,78 +117,119 @@ def update_alliance_members():
 
 
 @shared_task()
-def push_to_sheets():
-    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(f"{BASE_DIR}/credentials.json", scope)
-    client = gspread.authorize(credentials)
+def update_tax_records():
+    login_payload = {
+        'email': config.get('pnw', 'EMAIL'),
+        'password': config.get('pnw', 'PASSWORD'),
+        'loginform': 'login'
+    }
+    with requests.Session() as s:
+        s.post('https://politicsandwar.com/login/', data=login_payload, headers={'User-Agent': 'Mozilla/5.0'})
+        bank_taxes_page = BeautifulSoup(s.post('https://politicsandwar.com/alliance/id=7452&display=banktaxes', data={'maximum': 100, 'minimum': 0, 'search': 'Go'}).text, 'html.parser')
+        table = bank_taxes_page.find('table', {"class": "nationtable"})
+        rows = table.find_all('tr')
 
-    sheet = client.open_by_key(config.get("googlesheets", "SHEET_KEY"))
-    data_dump_worksheet_name = config.get("googlesheets", "DATA_DUMP_NAME")
-    data_dump_worksheet = sheet.worksheet(data_dump_worksheet_name)
+        for row in rows[1:-1]:
+            cols = row.find_all('td')
 
-    sheet.values_clear(f"{data_dump_worksheet_name}!A2:{gspread.utils.rowcol_to_a1(100, 29)}")
+            nationid = cols[2].a['href'].split('id=')[1]
 
-    members = []
-    for alliance_member_object in AllianceMember.objects.all():
-        members.append([
-            alliance_member_object.nation.nation,
-            f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
-            alliance_member_object.nation.nationid,
-            alliance_member_object.nation.leader,
-            alliance_member_object.nation.cities,
-            alliance_member_object.nation.score,
-            alliance_member_object.nation.minutessinceactive,
-            alliance_member_object.cityprojecttimerturns,
-            alliance_member_object.nation.infrastructure,
-            alliance_member_object.nation.nationmilitary.soldiers,
-            alliance_member_object.nation.nationmilitary.tanks,
-            alliance_member_object.nation.nationmilitary.aircraft,
-            alliance_member_object.nation.nationmilitary.ships,
-            alliance_member_object.nation.nationmilitary.missiles,
-            alliance_member_object.nation.nationmilitary.nukes,
-        ])
-    update_range = f"A2:{gspread.utils.rowcol_to_a1(len(members) + 1, 18)}"
-    print(len(members))
-    data_dump_worksheet.batch_update([{
-        'range': update_range,
-        'values': members,
-    }])
+            nation_object, _ = Nation.objects.get_or_create(nationid=nationid)
+            date = datetime.strptime(cols[1].text.strip(), '%m/%d/%Y %I:%M %p').replace(tzinfo=timezone.utc)
 
+            tax_record_object = TaxRecord(nation=nation_object, date=date, note=cols[1].img['title'], tax_id=cols[16].text.strip(),
+                                          money=cols[4].text.strip().replace(',', '')[1:],
+                                          food=cols[5].text.strip().replace(',', ''),
+                                          coal=cols[6].text.strip().replace(',', ''),
+                                          oil=cols[7].text.strip().replace(',', ''),
+                                          uranium=cols[8].text.strip().replace(',', ''),
+                                          lead=cols[9].text.strip().replace(',', ''),
+                                          iron=cols[10].text.strip().replace(',', ''),
+                                          bauxite=cols[11].text.strip().replace(',', ''),
+                                          gasoline=cols[12].text.strip().replace(',', ''),
+                                          munitions=cols[13].text.strip().replace(',', ''),
+                                          steel=cols[14].text.strip().replace(',', ''),
+                                          aluminum=cols[15].text.strip().replace(',', ''),
+                                          )
+            try:
+                tax_record_object.validate_unique()
+            except ValidationError:
+                break
+            else:
+                tax_record_object.save()
 
-@shared_task()
-def changeup():
-    scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-    credentials = ServiceAccountCredentials.from_json_keyfile_name(f"{BASE_DIR}/credentials.json", scope)
-    client = gspread.authorize(credentials)
+    @shared_task()
+    def push_to_sheets():
+        scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(f"{BASE_DIR}/credentials.json", scope)
+        client = gspread.authorize(credentials)
 
-    sheet = client.open_by_key('1mZuzUY6A5Day38gkTbuxeGiNyRf3v3eFJvX0fmSFBvQ')
-    data_dump_worksheet_name = 'Data Dump'
-    data_dump_worksheet = sheet.worksheet(data_dump_worksheet_name)
+        sheet = client.open_by_key(config.get("googlesheets", "SHEET_KEY"))
+        data_dump_worksheet_name = config.get("googlesheets", "DATA_DUMP_NAME")
+        data_dump_worksheet = sheet.worksheet(data_dump_worksheet_name)
 
-    sheet.values_clear(f"{data_dump_worksheet_name}!A2:{gspread.utils.rowcol_to_a1(100, 29)}")
+        sheet.values_clear(f"{data_dump_worksheet_name}!A2:{gspread.utils.rowcol_to_a1(100, 29)}")
 
-    members = []
-    for alliance_member_object in AllianceMember.objects.all():
-        members.append([
-            alliance_member_object.nation.nation,
-            f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
-            alliance_member_object.nation.nationid,
-            alliance_member_object.nation.leader,
-            alliance_member_object.nation.cities,
-            alliance_member_object.nation.score,
-            alliance_member_object.nation.minutessinceactive,
-            alliance_member_object.cityprojecttimerturns,
-            alliance_member_object.nation.infrastructure,
-            alliance_member_object.nation.nationmilitary.soldiers,
-            alliance_member_object.nation.nationmilitary.tanks,
-            alliance_member_object.nation.nationmilitary.aircraft,
-            alliance_member_object.nation.nationmilitary.ships,
-            alliance_member_object.nation.nationmilitary.missiles,
-            alliance_member_object.nation.nationmilitary.nukes,
-        ])
-    update_range = f"A2:{gspread.utils.rowcol_to_a1(len(members) + 1, 18)}"
-    print(len(members))
-    data_dump_worksheet.batch_update([{
-        'range': update_range,
-        'values': members,
-    }])
+        members = []
+        for alliance_member_object in AllianceMember.objects.all():
+            members.append([
+                alliance_member_object.nation.nation,
+                f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
+                alliance_member_object.nation.nationid,
+                alliance_member_object.nation.leader,
+                alliance_member_object.nation.cities,
+                alliance_member_object.nation.score,
+                alliance_member_object.nation.minutessinceactive,
+                alliance_member_object.cityprojecttimerturns,
+                alliance_member_object.nation.infrastructure,
+                alliance_member_object.nation.nationmilitary.soldiers,
+                alliance_member_object.nation.nationmilitary.tanks,
+                alliance_member_object.nation.nationmilitary.aircraft,
+                alliance_member_object.nation.nationmilitary.ships,
+                alliance_member_object.nation.nationmilitary.missiles,
+                alliance_member_object.nation.nationmilitary.nukes,
+            ])
+        update_range = f"A2:{gspread.utils.rowcol_to_a1(len(members) + 1, 18)}"
+        print(len(members))
+        data_dump_worksheet.batch_update([{
+            'range': update_range,
+            'values': members,
+        }])
+
+    @shared_task()
+    def changeup():
+        scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(f"{BASE_DIR}/credentials.json", scope)
+        client = gspread.authorize(credentials)
+
+        sheet = client.open_by_key('1mZuzUY6A5Day38gkTbuxeGiNyRf3v3eFJvX0fmSFBvQ')
+        data_dump_worksheet_name = 'Data Dump'
+        data_dump_worksheet = sheet.worksheet(data_dump_worksheet_name)
+
+        sheet.values_clear(f"{data_dump_worksheet_name}!A2:{gspread.utils.rowcol_to_a1(100, 29)}")
+
+        members = []
+        for alliance_member_object in AllianceMember.objects.all():
+            members.append([
+                alliance_member_object.nation.nation,
+                f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
+                alliance_member_object.nation.nationid,
+                alliance_member_object.nation.leader,
+                alliance_member_object.nation.cities,
+                alliance_member_object.nation.score,
+                alliance_member_object.nation.minutessinceactive,
+                alliance_member_object.cityprojecttimerturns,
+                alliance_member_object.nation.infrastructure,
+                alliance_member_object.nation.nationmilitary.soldiers,
+                alliance_member_object.nation.nationmilitary.tanks,
+                alliance_member_object.nation.nationmilitary.aircraft,
+                alliance_member_object.nation.nationmilitary.ships,
+                alliance_member_object.nation.nationmilitary.missiles,
+                alliance_member_object.nation.nationmilitary.nukes,
+            ])
+        update_range = f"A2:{gspread.utils.rowcol_to_a1(len(members) + 1, 18)}"
+        print(len(members))
+        data_dump_worksheet.batch_update([{
+            'range': update_range,
+            'values': members,
+        }])

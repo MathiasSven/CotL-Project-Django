@@ -198,6 +198,21 @@ class Activity(models.Model):
         verbose_name_plural = 'activity'
 
 
+class TaxRecord(Resources):
+    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+    note = models.CharField(max_length=30)
+    tax_id = models.IntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['nation', 'date'], name='unique_tax_record'),
+        ]
+
+    def __str__(self):
+        return '%s (%s) Tax Record' % (self.nation.nation, self.nation.nationid)
+
+
 class Loan(Resources):
     nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
     borrowing_date = models.DateField(auto_now_add=True)
