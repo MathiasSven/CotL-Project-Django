@@ -1,3 +1,4 @@
+import pytz
 from django.db import models
 from django.utils.timezone import now
 from datetime import datetime, timedelta
@@ -126,19 +127,51 @@ class Resources(models.Model):
     aluminum = models.FloatField(null=True, default=0)
     steel = models.FloatField(null=True, default=0)
 
+    def resource_value_then(self, resource, date):
+        return getattr(self, resource) * Market.objects.get(pk=resource).data_on(date).mean_price
+
+    def net_value_then(self, date):
+        return sum([getattr(self, resource.name) * Market.objects.get(pk=resource.name).data_on(date).mean_price for resource in Resources._meta.get_fields()])
+
+    def resource_value_now(self, resource):
+        return getattr(self, resource) * Market.objects.get(pk=resource).avgprice
+
+    def net_value_now(self):
+        return sum([getattr(self, resource.name) * Market.objects.get(pk=resource.name).avgprice for resource in Resources._meta.get_fields()])
+
     class Meta:
         abstract = True
 
 
 class Bank(Resources):
+    def __init__(self, *args, **kwargs):
+        super(Bank, self).__init__(*args, **kwargs)
+        self.__fields = [f.name for f in Resources._meta.get_fields()]
+        for field in self.__fields:
+            setattr(self, f'__original_{field}', getattr(self, field))
+
     alliance = models.OneToOneField(Alliance, on_delete=models.CASCADE, primary_key=True)
     taxrate = models.IntegerField()
     resource_taxrate = models.IntegerField()
 
     last_updated = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kw):
+        last_updated = self.last_updated.date() if self.last_updated else 0
+        super(Bank, self).save(*args, **kw)
+        if last_updated != datetime.utcnow().date():
+            BankRecord.objects.create(bank=self, **filter_kwargs(Resources, self.__dict__))
+
     def __str__(self):
         return '%s (%s) Bank' % (self.alliance.name, self.alliance.id)
+
+
+class BankRecord(Resources):
+    bank = models.ForeignKey(Bank, on_delete=models.CASCADE)
+    snapshot_date = models.DateField(auto_now=True)
+
+    def __str__(self):
+        return '%s (%s) BankRecord (%s)' % (self.bank.alliance.name, self.bank.alliance.id, self.snapshot_date)
 
 
 class AllianceMember(Resources):
@@ -211,6 +244,74 @@ class TaxRecord(Resources):
 
     def __str__(self):
         return '%s (%s) Tax Record' % (self.nation.nation, self.nation.nationid)
+
+
+class Market(models.Model):
+    # noinspection DuplicatedCode
+    RESOURCE_TYPE = [
+        ('food', 'Food'),
+        ('coal', 'Coal'),
+        ('oil', 'Oil'),
+        ('uranium', 'Uranium'),
+        ('bauxite', 'Bauxite'),
+        ('iron', 'Iron'),
+        ('lead', 'Lead'),
+        ('gasoline', 'Gasoline'),
+        ('munitions', 'Munitions'),
+        ('aluminum', 'Aluminum'),
+        ('steel', 'Steel'),
+        ('credits', 'Credits')
+    ]
+
+    resource = models.CharField(max_length=20, choices=RESOURCE_TYPE, primary_key=True)
+    avgprice = models.IntegerField(null=True)
+    marketindex = models.IntegerField(null=True)
+
+    def data_on(self, date: datetime):
+        return self.DataGetter(self, date)
+
+    class DataGetter:
+        def __init__(self, market, date, tz=pytz.timezone('US/Eastern')):
+            self.market = market
+            self.datetime = date
+            self.datetime_initial = datetime(date.year, date.month, date.day, 0, 0, 0, 0, tz)
+            self.datetime_final = datetime(date.year, date.month, date.day, 23, 59, 59, 999, tz)
+
+            """ Plain Trades """
+            self._trades = market.trades.filter(date__range=(self.datetime_initial, self.datetime_final)).order_by('date')
+            self._quantity = sum(self._trades.values_list('quantity', flat=True))
+            self._volume = sum([quantity * price for quantity, price in self._trades.values_list('quantity', 'price')])
+            self._mean_price = self._volume // self._quantity
+
+            """ Filtered Trades """
+            self.trades = market.trades.filter(date__range=(self.datetime_initial, self.datetime_final), price__range=(self._mean_price * 0.4, self._mean_price * 2.5)).order_by('date')
+            self.quantity = sum(self.trades.values_list('quantity', flat=True))
+            self.volume = sum([quantity * price for quantity, price in self._trades.values_list('quantity', 'price')])
+            self.mean_price = self._volume // self._quantity
+
+
+class Trade(models.Model):
+    trade_id = models.IntegerField(primary_key=True)
+    date = models.DateTimeField()
+    offerer_nation = models.ForeignKey(Nation, on_delete=models.PROTECT, related_name="offerer")
+    accepter_nation = models.ForeignKey(Nation, on_delete=models.PROTECT, related_name="accepter")
+    market = models.ForeignKey(Market, on_delete=models.CASCADE, related_name="trades")
+
+    OFFER_TYPE = [
+        ('sell', 'Sell'),
+        ('buy', 'Buy')
+    ]
+
+    offer_type = models.CharField(max_length=20, choices=OFFER_TYPE)
+
+    quantity = models.IntegerField()
+    price = models.IntegerField()
+
+    def volume(self):
+        return self.quantity * self.price
+
+    class Meta:
+        ordering = ['-trade_id']
 
 
 class Loan(Resources):

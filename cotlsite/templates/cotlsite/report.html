@@ -1,0 +1,41 @@
+{% extends 'cotlsite/layout.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'cotlsite/css/report.css' %}">
+{% endblock %}
+
+{% block body %}
+    <div class="grid-container">
+        <div class="tax-plot">
+            {% autoescape off %}
+                {{ plot_div }}
+            {% endautoescape %}
+        </div>
+        <div class="tax-table"></div>
+        <div class="nation-table">
+            <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQBAnxI3QlKwMkf2no5VGfl2ezdzQj7JeMf61PTE1U_W55lZlwBNyE9ICb6I8Cj11eZlwnvRP3LiZ4B/pubhtml?gid=569690142&amp;single=true&amp;widget=true&amp;headers=false"></iframe>
+        </div>
+        <div class="Activity">
+            <div id="calendar">
+                <div id="calendar_header"><i class="icon-chevron-left">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"></path>
+                    </svg>
+                </i>
+                    <h1></h1><i class="icon-chevron-right">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-right" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"></path>
+                        </svg>
+                    </i></div>
+                <div id="calendar_weekdays"></div>
+                <div id="calendar_content"></div>
+            </div>
+        </div>
+        <div class="activity"></div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script type="text/javascript" src="{% static 'cotlsite/js/report.js' %}"></script>
+{% endblock %}

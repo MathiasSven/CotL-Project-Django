@@ -1,0 +1,132 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 0.7fr 1.5fr;
+  grid-template-rows: 1fr 0.9fr 1.1fr;
+  gap: 18px 18px;
+}
+.tax-plot { grid-area: 3 / 3 / 4 / 4; }
+.tax-table { grid-area: 1 / 2 / 3 / 4; }
+.nation-table { grid-area: 1 / 1 / 4 / 2; }
+.Activity { grid-area: 3 / 2 / 4 / 3; }
+.activity { grid-area: 3 / 2 / 4 / 3; }
+
+#calendar {
+    width: 100%;
+    font-family: 'Lato', sans-serif;
+}
+
+#calendar_weekdays div {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#calendar_content, #calendar_weekdays, #calendar_header {
+    position: relative;
+    width: 320px;
+    overflow: hidden;
+    float: left;
+    z-index: 10;
+}
+
+#calendar_weekdays div, #calendar_content div {
+    width: 40px;
+    height: 40px;
+    overflow: hidden;
+    text-align: center;
+    background-color: #FFFFFF;
+    color: #787878;
+}
+
+#calendar_content {
+    -webkit-border-radius: 0 0 12px 12px;
+    -moz-border-radius: 0 0 12px 12px;
+    border-radius: 0 0 12px 12px;
+}
+
+#calendar_content div {
+    float: left;
+}
+
+#calendar_content div:hover {
+    background-color: #F8F8F8;
+}
+
+#calendar_content div.blank {
+    background-color: #E8E8E8;
+}
+
+#calendar_header {
+    zoom: 1;
+    filter: alpha(opacity=70);
+    opacity: 0.7;
+}
+
+#calendar_content {
+    color: #FFFFFF;
+}
+
+#calendar_header {
+    width: 100%;
+    height: 37px;
+    text-align: center;
+    background-color: #FF6860;
+    padding: 18px 0;
+    -webkit-border-radius: 12px 12px 0 0;
+    -moz-border-radius: 12px 12px 0 0;
+    border-radius: 12px 12px 0 0;
+}
+
+#calendar_header h1 {
+    font-size: 1.5em;
+    color: #FFFFFF;
+    float: left;
+    width: 70%;
+}
+
+i[class^=icon-chevron] {
+    color: #FFFFFF;
+    float: left;
+    width: 15%;
+    border-radius: 50%;
+    margin-top: -20px;
+}
+
+.bi {
+    width: 30%;
+    height: auto;
+}
+
+.today {
+    color: rgba(131, 8, 0, 0.7) !important;
+    font-weight: 900;
+    background: rgb(255, 255, 255);
+    background: radial-gradient(circle, rgba(255, 255, 255, 1) 52%, rgba(131, 8, 0, 0.7) 54%, rgba(255, 255, 255, 1) 56%);
+}
+
+.active_1 {
+    background: rgb(255, 255, 255);
+    background: radial-gradient(circle, rgba(255, 255, 255, 1) 52%, rgba(59, 224, 44, 1) 54%, rgba(255, 255, 255, 1) 56%);
+}
+
+.active_2 {
+    background: rgb(255, 255, 255);
+    background: radial-gradient(circle,
+    rgba(255, 255, 255, 1) 46%, rgba(59, 224, 44, 1) 48%, rgba(255, 255, 255, 1) 50%,
+    rgba(255, 255, 255, 1) 52%, rgba(59, 224, 44, 1) 54%, rgba(255, 255, 255, 1) 56%);
+}
+
+.active_3 {
+    background: rgb(255, 255, 255);
+    background: radial-gradient(circle,
+    rgba(255, 255, 255, 1) 40%, rgba(59, 224, 44, 1) 42%, rgba(255, 255, 255, 1) 44%,
+    rgba(255, 255, 255, 1) 46%, rgba(59, 224, 44, 1) 48%, rgba(255, 255, 255, 1) 50%,
+    rgba(255, 255, 255, 1) 52%, rgba(59, 224, 44, 1) 54%, rgba(255, 255, 255, 1) 56%);
+}
+
+.legend_1, .legend_2, .legend_3 {
+    height: 30px;
+    width: 30px;
+    display: inline-block;
+
+    margin-bottom: -10px;
+}

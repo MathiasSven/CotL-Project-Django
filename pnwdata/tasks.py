@@ -1,11 +1,9 @@
 from django.core.exceptions import ValidationError
 
 import configparser
-import gspread
 from pathlib import Path
 
 import requests
-from oauth2client.service_account import ServiceAccountCredentials
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 from celery import shared_task
@@ -158,78 +156,30 @@ def update_tax_records():
             else:
                 tax_record_object.save()
 
-    @shared_task()
-    def push_to_sheets():
-        scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(f"{BASE_DIR}/credentials.json", scope)
-        client = gspread.authorize(credentials)
 
-        sheet = client.open_by_key(config.get("googlesheets", "SHEET_KEY"))
-        data_dump_worksheet_name = config.get("googlesheets", "DATA_DUMP_NAME")
-        data_dump_worksheet = sheet.worksheet(data_dump_worksheet_name)
+@shared_task()
+def update_trade_records():
+    url = endpoint_url('trade-history', f"?records={5000}")
+    data = call_api(url)
 
-        sheet.values_clear(f"{data_dump_worksheet_name}!A2:{gspread.utils.rowcol_to_a1(100, 29)}")
+    resource_market = {f"{resource[0]}": Market.objects.get(pk=resource[0]) for resource in Market.RESOURCE_TYPE}
 
-        members = []
-        for alliance_member_object in AllianceMember.objects.all():
-            members.append([
-                alliance_member_object.nation.nation,
-                f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
-                alliance_member_object.nation.nationid,
-                alliance_member_object.nation.leader,
-                alliance_member_object.nation.cities,
-                alliance_member_object.nation.score,
-                alliance_member_object.nation.minutessinceactive,
-                alliance_member_object.cityprojecttimerturns,
-                alliance_member_object.nation.infrastructure,
-                alliance_member_object.nation.nationmilitary.soldiers,
-                alliance_member_object.nation.nationmilitary.tanks,
-                alliance_member_object.nation.nationmilitary.aircraft,
-                alliance_member_object.nation.nationmilitary.ships,
-                alliance_member_object.nation.nationmilitary.missiles,
-                alliance_member_object.nation.nationmilitary.nukes,
-            ])
-        update_range = f"A2:{gspread.utils.rowcol_to_a1(len(members) + 1, 18)}"
-        print(len(members))
-        data_dump_worksheet.batch_update([{
-            'range': update_range,
-            'values': members,
-        }])
+    for trade in data['trades']:
+        if int(trade['trade_id']) in Trade.objects.all().order_by('-trade_id').values_list('trade_id', flat=True):
+            continue
+        offerer_nation_object, _ = Nation.objects.get_or_create(nationid=trade.pop('offerer_nation_id'))
+        accepter_nation_object, _ = Nation.objects.get_or_create(nationid=trade.pop('accepter_nation_id'))
 
-    @shared_task()
-    def changeup():
-        scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(f"{BASE_DIR}/credentials.json", scope)
-        client = gspread.authorize(credentials)
+        Trade.objects.create(date=datetime.strptime(trade.pop('date'), '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc),
+                             offerer_nation=offerer_nation_object, accepter_nation=accepter_nation_object,
+                             market=resource_market[trade.pop('resource')], **trade)
 
-        sheet = client.open_by_key('1mZuzUY6A5Day38gkTbuxeGiNyRf3v3eFJvX0fmSFBvQ')
-        data_dump_worksheet_name = 'Data Dump'
-        data_dump_worksheet = sheet.worksheet(data_dump_worksheet_name)
 
-        sheet.values_clear(f"{data_dump_worksheet_name}!A2:{gspread.utils.rowcol_to_a1(100, 29)}")
+@shared_task()
+def update_market():
+    for resource in Market.RESOURCE_TYPE:
+        resource = resource[0]
+        url = endpoint_url('tradeprice', f"?resource={resource}")
+        data = call_api(url)
 
-        members = []
-        for alliance_member_object in AllianceMember.objects.all():
-            members.append([
-                alliance_member_object.nation.nation,
-                f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
-                alliance_member_object.nation.nationid,
-                alliance_member_object.nation.leader,
-                alliance_member_object.nation.cities,
-                alliance_member_object.nation.score,
-                alliance_member_object.nation.minutessinceactive,
-                alliance_member_object.cityprojecttimerturns,
-                alliance_member_object.nation.infrastructure,
-                alliance_member_object.nation.nationmilitary.soldiers,
-                alliance_member_object.nation.nationmilitary.tanks,
-                alliance_member_object.nation.nationmilitary.aircraft,
-                alliance_member_object.nation.nationmilitary.ships,
-                alliance_member_object.nation.nationmilitary.missiles,
-                alliance_member_object.nation.nationmilitary.nukes,
-            ])
-        update_range = f"A2:{gspread.utils.rowcol_to_a1(len(members) + 1, 18)}"
-        print(len(members))
-        data_dump_worksheet.batch_update([{
-            'range': update_range,
-            'values': members,
-        }])
+        Market.objects.filter(resource=resource).update(avgprice=data['avgprice'], marketindex=data['marketindex'].replace(",", ""))
