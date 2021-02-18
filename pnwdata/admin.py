@@ -33,6 +33,20 @@ class AllianceMemberAdmin(admin.ModelAdmin):
         return False
 
 
+@admin.register(TaxRecord)
+class TaxRecordAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'date', 'note', 'tax_id')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(Bank)
 class BankAdmin(admin.ModelAdmin):
 
