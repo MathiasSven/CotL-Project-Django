@@ -1,6 +1,6 @@
 import json
-# from plotly.offline import plot
-# from plotly.graph_objs import Scatter
+from plotly.offline import plot
+from plotly.graph_objs import Scatter
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -101,16 +101,16 @@ class AllianceMemberAutocomplete(autocomplete.Select2QuerySetView):
         return format_html('<img style="width: {}px; height: {}px;" src="{}"> {}', dimensions[0], dimensions[1], flag_url, item.__str__().replace(" Alliance Member", ""))
 
 
-# @login_required(redirect_field_name='state')
-# @allowed_users(allowed_roles=['High Government', 'Low Government'])
-# def report(request, nationid):
-#     tax_data = pnwmodels.TaxRecord.objects.filter(nation__nationid=nationid).order_by('date')
-#     y_data = [tax.money for tax in tax_data]
-#     print(y_data)
-#     x_data = [tax.date for tax in tax_data]
-#     print(x_data)
-#     plot_div = plot([Scatter(x=x_data, y=y_data,
-#                              mode='lines', name='test',
-#                              opacity=0.8, marker_color='green')],
-#                     output_type='div')
-#     return render(request, "cotlsite/report.html", context={'plot_div': plot_div})
+@login_required(redirect_field_name='state')
+@allowed_users(allowed_roles=['High Government', 'Low Government'])
+def report(request, nationid):
+    tax_data = pnwmodels.TaxRecord.objects.filter(nation__nationid=nationid).order_by('date')
+    y_data = [tax.money for tax in tax_data]
+    print(y_data)
+    x_data = [tax.date for tax in tax_data]
+    print(x_data)
+    plot_div = plot([Scatter(x=x_data, y=y_data,
+                             mode='lines', name='test',
+                             opacity=0.8, marker_color='green')],
+                    output_type='div')
+    return render(request, "cotlsite/report.html", context={'plot_div': plot_div})
