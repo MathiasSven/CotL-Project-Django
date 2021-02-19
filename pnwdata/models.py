@@ -128,13 +128,13 @@ class Resources(models.Model):
     steel = models.FloatField(null=True, default=0)
 
     def resource_value_then(self, resource, date):
-        return getattr(self, resource) * Market.objects.get(pk=resource).data_on(date).mean_price
+        return getattr(self, resource) * (Market.objects.get(pk=resource).data_on(date).mean_price if resource != 'money' else 1)
 
     def net_value_then(self, date):
-        return sum([getattr(self, resource.name) * Market.objects.get(pk=resource.name).data_on(date).mean_price for resource in Resources._meta.get_fields()])
+        return sum([getattr(self, resource.name) * (Market.objects.get(pk=resource.name).data_on(date).mean_price if resource.name != 'money' else 1) for resource in Resources._meta.get_fields()])
 
     def resource_value_now(self, resource):
-        return getattr(self, resource) * Market.objects.get(pk=resource).avgprice
+        return getattr(self, resource) * (Market.objects.get(pk=resource).avgprice if resource != 'money' else 1)
 
     def net_value_now(self):
         return sum([getattr(self, resource.name) * (Market.objects.get(pk=resource.name).avgprice if resource.name != 'money' else 1) for resource in Resources._meta.get_fields()])
@@ -178,11 +178,19 @@ class AllianceMember(Resources):
     credits = models.FloatField()
 
     nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)
-
     cityprojecttimerturns = models.IntegerField(null=True)
     update_tz = models.IntegerField(null=True)
 
     last_updated = models.DateTimeField(auto_now=True)
+
+    def taxes(self):
+        return TaxRecord.objects.filter(nation=self.nation)
+
+    def taxes_since(self, date: datetime):
+        return TaxRecord.objects.filter(nation=self.nation, date__gte=date)
+
+    def taxes_on(self, date: datetime):
+        return TaxRecord.objects.filter(nation=self.nation, date__day=date.day)
 
     def active_days_since(self, days_ago=0):
         active_days = 0
