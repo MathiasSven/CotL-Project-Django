@@ -137,7 +137,7 @@ class Resources(models.Model):
         return getattr(self, resource) * Market.objects.get(pk=resource).avgprice
 
     def net_value_now(self):
-        return sum([getattr(self, resource.name) * Market.objects.get(pk=resource.name).avgprice for resource in Resources._meta.get_fields()])
+        return sum([getattr(self, resource.name) * (Market.objects.get(pk=resource.name).avgprice if resource.name != 'money' else 1) for resource in Resources._meta.get_fields()])
 
     class Meta:
         abstract = True
