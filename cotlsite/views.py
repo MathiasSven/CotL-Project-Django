@@ -114,3 +114,15 @@ class AllianceMemberAutocomplete(autocomplete.Select2QuerySetView):
 #                              opacity=0.8, marker_color='green')],
 #                     output_type='div')
 #     return render(request, "cotlsite/report.html", context={'plot_div': plot_div})
+
+from pnwdata.tables import TaxTable
+
+
+@login_required(redirect_field_name='state')
+@allowed_users(allowed_roles=['High Government'])
+def taxes(request, tax_id):
+    table = TaxTable(tax_id)
+
+    return render(request, "cotlsite/tables.html", {
+        "table": table
+    })

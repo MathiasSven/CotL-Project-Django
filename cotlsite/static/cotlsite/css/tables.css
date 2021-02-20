@@ -1,0 +1,16 @@
+.table-container {
+    width: 80%;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    margin: 100px 0 100px 0;
+
+    z-index: -1;
+}
+
+table {
+    background-color: white;
+    border-radius: 10px;
+}

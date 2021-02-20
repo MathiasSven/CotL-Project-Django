@@ -1,0 +1,9 @@
+{% extends 'cotlsite/layout.html' %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% block head %}
+    <link rel="stylesheet" href="{% static 'cotlsite/css/tables.css' %}">
+{% endblock %}
+{% block body %}
+    {% render_table table %}
+{% endblock %}

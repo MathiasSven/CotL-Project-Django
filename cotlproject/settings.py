@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'discordlogin.apps.DiscordloginConfig',
     'discordbotapi.apps.DiscordbotapiConfig',
     'pnwdata.apps.PnwdataConfig',
+    'django_tables2',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +82,8 @@ TEMPLATES = [
         },
     },
 ]
+
+DJANGO_TABLES2_TEMPLATE = 'django_tables2/bootstrap-responsive.html'
 
 WSGI_APPLICATION = 'cotlproject.wsgi.application'
 
