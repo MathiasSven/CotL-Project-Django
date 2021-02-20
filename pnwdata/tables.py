@@ -1,5 +1,5 @@
 import django_tables2 as tables
-from django.db.models import Sum, Value, FloatField
+from django.db.models import F, Sum, FloatField
 from django.utils.html import format_html
 
 from .models import *
@@ -21,13 +21,13 @@ class SummingColumn(tables.Column):
 class TaxTable(tables.Table):
     def __init__(self, tax_id):
         q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).annotate()
-        net_value_calculator = Resources()
+        net_value_f_expression = 0
         for resource in Resources._meta.get_fields():
-            setattr(net_value_calculator, resource.name, list(q_set.aggregate(Sum(f"nation__taxrecord__{resource.name}")).values())[0])
             annotate_kwargs = {f'taxed_{resource.name}': Sum(f"nation__taxrecord__{resource.name}")}
             q_set = q_set.annotate(**annotate_kwargs)
+            net_value_f_expression += F(f'nation__taxrecord__{resource.name}') * (Market.objects.get(pk=resource.name).avgprice if resource.name != 'money' else 1)
 
-        q_set = q_set.annotate(net_value=Value(net_value_calculator.net_value_now(), FloatField()))
+        q_set = q_set.annotate(net_value=Sum(net_value_f_expression))
         super(TaxTable, self).__init__(q_set)
 
     nation__nationid = tables.Column()
