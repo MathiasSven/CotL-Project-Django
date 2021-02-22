@@ -154,7 +154,7 @@ class WCTable(tables.Table):
 # noinspection PyMethodMayBeStatic
 class CityTable(tables.Table):
     def __init__(self, tax_id):
-        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=Sum(next_city_cost(F('nation__cities')))).annotate(
+        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=Value(next_city_cost(F('nation__cities')), output_field=FloatField())).annotate(
             withdraw_link=Sum(next_city_cost(F('nation__cities'))))
         super(CityTable, self).__init__(q_set)
 
