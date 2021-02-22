@@ -155,13 +155,11 @@ class WCTable(tables.Table):
 class CityTable(tables.Table):
     def __init__(self, tax_id):
         q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=Sum(next_city_cost(F('nation__cities')))).annotate(
-            withdraw_link=Sum(next_city_cost(F('nation__cities')))).annotate(average_infra=Sum(F('nation__infrastructure') / F('nation__cities'), output_field=FloatField()))
+            withdraw_link=Sum(next_city_cost(F('nation__cities'))))
         super(CityTable, self).__init__(q_set)
 
     nation__nationid = tables.Column()
     nation__nation = tables.Column()
-
-    average_infra = tables.Column()
 
     nation__cities = tables.Column()
     next_city_cost = FormatColumn(data_type='monetary')
@@ -170,9 +168,6 @@ class CityTable(tables.Table):
 
     def render_nation__nation(self, value, record):
         return format_html(f"<a href='https://politicsandwar.com/nation/id={record.nation.nationid}' target='_blank'>{value}</a>")
-
-    def render_average_infra(self, value, record):
-        return f'{value:,.2f}'
 
     def render_withdraw_link(self, value, record):
         return format_html(
