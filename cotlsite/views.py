@@ -115,14 +115,18 @@ class AllianceMemberAutocomplete(autocomplete.Select2QuerySetView):
 #                     output_type='div')
 #     return render(request, "cotlsite/report.html", context={'plot_div': plot_div})
 
-from pnwdata.tables import TaxTable
+from pnwdata.tables import TaxTable, WCTable, CityTable
 
 
 @login_required(redirect_field_name='state')
 @allowed_users(allowed_roles=['High Government'])
 def taxes(request, tax_id):
-    table = TaxTable(tax_id)
+    table1 = TaxTable(tax_id)
+    table2 = WCTable(tax_id)
+    table3 = CityTable(tax_id)
 
     return render(request, "cotlsite/tables.html", {
-        "table": table
+        "table1": table1,
+        "table2": table2,
+        "table3": table3
     })

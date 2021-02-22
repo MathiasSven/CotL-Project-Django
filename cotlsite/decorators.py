@@ -12,12 +12,12 @@ def allowed_users(allowed_roles=None):
             try:
                 member_object = Member.objects.get(pk=request.user.pk)
             except Member.DoesNotExist:
-                return HttpResponse('You must be a member of CotL to use this tool')
+                return HttpResponse('You must be a member of CotL to use this tool', status=401)
             else:
                 if member_object.roles.filter(name__in=allowed_roles).exists() or request.user.is_superuser:
                     return view_func(request, *args, **kwargs)
                 else:
-                    return HttpResponse('You must be a member of CotL to use this tool')
+                    return HttpResponse('You do not have access to this.', status=401)
         return wrapper_func
 
     return decorator
