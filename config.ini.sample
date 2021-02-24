@@ -1,5 +1,6 @@
 [settings]
 ALLOWED_HOSTS = []
+SENTRY_SDK_DSN =
 
 [database]
 ENGINE =
