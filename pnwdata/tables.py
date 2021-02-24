@@ -1,5 +1,6 @@
 import django_tables2 as tables
-from django.db.models import F, Sum, FloatField, Value
+from django.db.models import F, Sum
+
 from django.utils.html import format_html
 
 from .models import *
@@ -154,7 +155,7 @@ class WCTable(tables.Table):
 # noinspection PyMethodMayBeStatic
 class CityTable(tables.Table):
     def __init__(self, tax_id):
-        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=Sum(next_city_cost(F('nation__cities')))).annotate(
+        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=next_city_cost(F('nation__cities'))).annotate(
             withdraw_link=Sum(next_city_cost(F('nation__cities'))))
         super(CityTable, self).__init__(q_set)
 
