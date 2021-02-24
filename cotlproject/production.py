@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import ast
 import configparser
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 import os
 from pathlib import Path
 from discordlogin.views import DISCORD_LOGIN_URI
@@ -20,6 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 config = configparser.ConfigParser()
 config.read(f"{BASE_DIR}/config.ini")
+
+# Sentry SDK Configuration
+sentry_sdk.init(
+    dsn=config.get("settings", "SENTRY_SDK_DSN"),
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=0.5,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
