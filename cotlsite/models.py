@@ -42,6 +42,8 @@ class Member(models.Model):
                     discriminator=instance.discriminator(),
                     avatar=instance.avatar
                 )
+            else:
+                instance.groups.set(member_on_login.roles.all())
 
     @staticmethod
     def post_member_save(sender, instance, created, *args, **kwargs):

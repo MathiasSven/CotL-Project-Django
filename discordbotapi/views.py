@@ -79,14 +79,17 @@ def member_update(request):
             tmp_member.save()
             try:
                 roles = member['roles']
-                tmp_member.roles.clear()
+                tmp_role_list = []
                 for role in roles:
                     tmp_role, _ = Role.objects.get_or_create(role_id=role['id'])
                     tmp_role.name = role['name']
                     tmp_role.position = role['position']
                     tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
                     tmp_role.save()
-                    tmp_member.roles.add(tmp_role)
+                    tmp_role_list.append(tmp_role)
+
+                tmp_member.roles.clear()
+                tmp_member.roles.add(*tmp_role_list)
             except KeyError:
                 pass
 
