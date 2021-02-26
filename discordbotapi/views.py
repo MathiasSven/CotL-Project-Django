@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
 
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -79,14 +80,17 @@ def member_update(request):
             tmp_member.save()
             try:
                 roles = member['roles']
-                tmp_member.roles.clear()
+                tmp_role_list = []
                 for role in roles:
                     tmp_role, _ = Role.objects.get_or_create(role_id=role['id'])
                     tmp_role.name = role['name']
                     tmp_role.position = role['position']
                     tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
                     tmp_role.save()
-                    tmp_member.roles.add(tmp_role)
+                    tmp_role_list.append(tmp_role)
+
+                tmp_member.roles.clear()
+                tmp_member.roles.add(*tmp_role_list)
             except KeyError:
                 pass
 
@@ -253,8 +257,15 @@ def link_nation(request):
                     "error": "Member is not on the database"
                 }, status=404)
             linking_nation, _ = MemberNation.objects.get_or_create(nation_id=data['nation_id'])
+            unlinking_nation = member_to_link.membernation if MemberNation.objects.filter(discord_member=member_to_link).exists() else None
             linking_nation.discord_member = member_to_link
-            linking_nation.save()
+            try:
+                linking_nation.validate_unique(exclude='nation_id')
+            except ValidationError:
+                unlinking_nation.discord_member = None
+                unlinking_nation.save()
+            finally:
+                linking_nation.save()
             return JsonResponse({
                 "POST": "Successful"
             }, status=201)

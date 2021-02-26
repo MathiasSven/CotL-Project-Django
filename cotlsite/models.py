@@ -42,6 +42,8 @@ class Member(models.Model):
                     discriminator=instance.discriminator(),
                     avatar=instance.avatar
                 )
+            else:
+                instance.groups.set(member_on_login.roles.all())
 
     @staticmethod
     def post_member_save(sender, instance, created, *args, **kwargs):
@@ -100,7 +102,7 @@ class MemberNation(models.Model):
     flag_url = models.URLField(null=True)
     date_founded = models.DateTimeField(null=True)
 
-    discord_member = models.ForeignKey(Member, on_delete=models.CASCADE, null=True)
+    discord_member = models.OneToOneField(Member, on_delete=models.CASCADE, null=True, blank=True)
 
     @classmethod
     def post_create(cls, sender, instance, created, *args, **kwargs):
