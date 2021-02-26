@@ -28,9 +28,9 @@ class SummingColumn(tables.Column):
 
 
 class FormatColumn(tables.Column):
-    def __init__(self, data_type='number'):
+    def __init__(self, data_type='number', **kwargs):
         self.data_type = data_type
-        super(FormatColumn, self).__init__()
+        super(FormatColumn, self).__init__(**kwargs)
 
     def render(self, value):
         return f'{"$" if self.data_type == "monetary" else ""}{value:,.2f}'
@@ -162,10 +162,15 @@ class CityTable(tables.Table):
     nation__nationid = tables.Column()
     nation__nation = tables.Column()
 
-    nation__cities = tables.Column()
-    next_city_cost = FormatColumn(data_type='monetary')
+    cityprojecttimerturns = tables.Column(verbose_name='City/Project Timer')
 
-    withdraw_link = tables.Column()
+    nation__cities = tables.Column()
+    next_city_cost = FormatColumn(data_type='monetary', verbose_name='Next city cost (MD)')
+
+    withdraw_link = tables.Column(verbose_name='Withdraw link (MD)')
+
+    def render_cityprojecttimerturns(self, value, record):
+        return format_html(f"<span>{value} Turns</span>")
 
     def render_nation__nation(self, value, record):
         return format_html(f"<a href='https://politicsandwar.com/nation/id={record.nation.nationid}' target='_blank'>{value}</a>")
