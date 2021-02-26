@@ -66,14 +66,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'django_celery_beat',
     'django_celery_results',
     'colorfield',
+    'rest_framework',
+    'django_tables2',
+
     'cotlsite.apps.CotlsiteConfig',
     'discordlogin.apps.DiscordloginConfig',
     'discordbotapi.apps.DiscordbotapiConfig',
     'pnwdata.apps.PnwdataConfig',
-    'django_tables2',
 ]
 
 MIDDLEWARE = [

@@ -24,5 +24,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('oauth2/', include('discordlogin.urls')),
     path('api/', include('discordbotapi.urls')),
+    path('api/', include('pnwdata.urls')),
     path('', include('cotlsite.urls')),
 ]
