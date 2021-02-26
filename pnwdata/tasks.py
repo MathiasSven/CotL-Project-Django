@@ -10,7 +10,7 @@ from datetime import datetime, timezone, timedelta
 from celery import shared_task
 from pathlib import Path
 
-from .serializer import call_api
+from .caller import call_api
 from .models import *
 
 BASE_DIR = Path(__file__).resolve().parent.parent

@@ -21,3 +21,4 @@ django-autocomplete-light==3.8.1
 beautifulsoup4~=4.9.3
 django-tables2==2.3.4
 sentry-sdk==0.20.3
+djangorestframework~=3.12.2
