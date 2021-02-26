@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timezone
 
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -256,8 +257,15 @@ def link_nation(request):
                     "error": "Member is not on the database"
                 }, status=404)
             linking_nation, _ = MemberNation.objects.get_or_create(nation_id=data['nation_id'])
+            unlinking_nation = member_to_link.membernation if MemberNation.objects.filter(discord_member=member_to_link).exists() else None
             linking_nation.discord_member = member_to_link
-            linking_nation.save()
+            try:
+                linking_nation.validate_unique(exclude='nation_id')
+            except ValidationError:
+                unlinking_nation.discord_member = None
+                unlinking_nation.save()
+            finally:
+                linking_nation.save()
             return JsonResponse({
                 "POST": "Successful"
             }, status=201)
