@@ -1,0 +1,29 @@
+{% extends 'cotlsite/layout.html' %}
+{% load static %}
+
+{% block body %}
+    <div id="wdr-component"></div>
+{% endblock %}
+
+{% block footer %}
+    <link href="https://cdn.webdatarocks.com/latest/webdatarocks.min.css" rel="stylesheet"/>
+    <script src="https://cdn.webdatarocks.com/latest/webdatarocks.toolbar.min.js"></script>
+    <script src="https://cdn.webdatarocks.com/latest/webdatarocks.js"></script>
+    <script>
+        fetch('/api/alliance-members', {
+            method: 'GET'
+        })
+            .then(r => r.json())
+            .then(data => {
+                let pivot = new WebDataRocks({
+                    container: "#wdr-component",
+                    toolbar: true,
+                    report: {
+                        dataSource: {
+                            data: data
+                        }
+                    }
+                });
+            })
+    </script>
+{% endblock %}

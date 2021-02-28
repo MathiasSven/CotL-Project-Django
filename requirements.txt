@@ -18,3 +18,4 @@ django-autocomplete-light==3.8.1
 beautifulsoup4~=4.9.3
 django-tables2==2.3.4
 djangorestframework~=3.12.2
+django-modeladmin-reorder==0.3.1

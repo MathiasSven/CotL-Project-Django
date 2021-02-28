@@ -156,7 +156,7 @@ class WCTable(tables.Table):
 class CityTable(tables.Table):
     def __init__(self, tax_id):
         q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=next_city_cost(F('nation__cities'))).annotate(
-            withdraw_link=Sum(next_city_cost(F('nation__cities'))))
+            withdraw_link=next_city_cost(F('nation__cities')))
         super(CityTable, self).__init__(q_set)
 
     nation__nationid = tables.Column()

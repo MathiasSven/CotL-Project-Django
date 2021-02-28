@@ -1,7 +1,11 @@
 import pytz
+import json
+import uuid
 from django.db import models
 from django.utils.timezone import now
 from datetime import datetime, timedelta
+
+from .tasks import send_message, get_transaction
 
 
 # noinspection PyProtectedMember
@@ -297,6 +301,9 @@ class Market(models.Model):
             self.volume = sum([quantity * price for quantity, price in self._trades.values_list('quantity', 'price')])
             self.mean_price = self._volume // self._quantity
 
+    def __str__(self):
+        return f'{self.resource.capitalize()} Market'
+
 
 class Trade(models.Model):
     trade_id = models.IntegerField(primary_key=True)
@@ -322,6 +329,20 @@ class Trade(models.Model):
         ordering = ['-trade_id']
 
 
+class Aid(Resources):
+    nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
+    sent_on = models.DateField(auto_now_add=True)
+    reason = models.TextField(blank=True)
+    message_id = models.BigIntegerField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'aid'
+        verbose_name_plural = 'aid'
+
+    def __str__(self):
+        return 'Aid Request by %s (%s)' % (self.nation.nation, self.nation.nationid)
+
+
 class Loan(Resources):
     nation = models.ForeignKey(Nation, on_delete=models.CASCADE)
     borrowing_date = models.DateField(auto_now_add=True)
@@ -332,6 +353,7 @@ class Loan(Resources):
     def save(self, *args, **kw):
         if self.payed:
             self.payed_on = models.fields.datetime.datetime.utcnow()
+            send_message(nation_id=self.nation.nationid, subject=f"LOAN PAYED BACK", message=f"{json.dumps(filter_kwargs(Resources, self.__dict__), indent=4)}")
         super(Loan, self).save(*args, **kw)
 
     def __str__(self):
@@ -343,7 +365,7 @@ class Holdings(Resources):
     last_updated = models.DateTimeField(auto_now=True)
 
     def available_holdings(self):
-        withdraw_requests = Request.objects.filter(nation=self.nation, status=None)
+        withdraw_requests = Request.objects.filter(nation=self.nation, status=None, request_type='WITHDRAW')
         holdings_dict = filter_kwargs(Resources, self.__dict__)
         if not withdraw_requests:
             return holdings_dict
@@ -357,7 +379,7 @@ class Holdings(Resources):
         return holdings_dict
 
     def frozen_holdings(self):
-        withdraw_requests = Request.objects.filter(nation=self.nation, status=None)
+        withdraw_requests = Request.objects.filter(nation=self.nation, status=None, request_type='WITHDRAW')
         if not withdraw_requests:
             return
         withdraws_dict = {f.name: 0 for f in Resources._meta.get_fields()}
@@ -412,7 +434,7 @@ class Deposit(Resources):
         super(Deposit, self).save(*args, **kw)
 
     def __str__(self):
-        return f'Deposit ({self.tx_id}) by {self.nation.nation} ({self.nation.nationid})'
+        return f'Deposit ({self.tx_id if self.tx_id is not None else "Manual"}) by {self.nation.nation} ({self.nation.nationid})'
 
 
 class Withdraw(Resources):
@@ -439,6 +461,9 @@ class Withdraw(Resources):
 
         super(Withdraw, self).save(*args, **kw)
 
+    def __str__(self):
+        return f'Withdraw ({self.tx_id if self.tx_id is not None else "Manual"}) by {self.nation.nation} ({self.nation.nationid})'
+
 
 class Request(Resources):
     STATUS_CHOICES = [
@@ -459,32 +484,47 @@ class Request(Resources):
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=None, null=True)
 
+    reason = models.TextField(default='')
+
+    identifier = models.BigIntegerField(null=True)
+
     pay_by = models.DateField(null=True, blank=True)
 
     def request_link(self):
-
-        request_link = f"https://politicsandwar.com/alliance/id=7452&display=bank&w_type=nation&w_recipient={self.nation.nation.replace(' ', '%20')}&w_note={self.request_type}"
+        note = self.request_type + f'%20{self.identifier}' if self.request_type == 'WITHDRAW' else self.request_type
+        request_link = f"https://politicsandwar.com/alliance/id=7452&display=bank&w_type=nation&w_recipient={self.nation.nation.replace(' ', '%20')}&w_note={note}"
         res_dict = filter_kwargs(Resources, self.__dict__)
         for res in res_dict:
             request_link += f"&w_{res}={int(res_dict[res])}"
         return request_link
 
     def save(self, *args, **kw):
-        from .tasks import send_message
         if self.status == 'Y':
+            if self.request_type == "AID":
+                self.message_id = self.identifier
+                new_aid_object = Aid(**filter_kwargs(Aid, self.__dict__))
+                new_aid_object.nation = self.nation
+                new_aid_object.save()
             if self.request_type == "WITHDRAW":
                 new_withdraw_object = Withdraw(**filter_kwargs(Resources, self.__dict__))
                 new_withdraw_object.nation = self.nation
+                transaction = get_transaction(self.nation.nationid, datetime.utcnow().date() - timedelta(days=1), 'NOTE', self.identifier)
+                if transaction:
+                    new_withdraw_object.tx_id = transaction['tx_id']
+                else:
+                    return
                 new_withdraw_object.save()
             if self.request_type == "LOAN":
-                new_loan_object = Withdraw(**filter_kwargs(Loan, self.__dict__))
+                new_loan_object = Loan(**filter_kwargs(Loan, self.__dict__))
                 new_loan_object.nation = self.nation
                 new_loan_object.save()
-            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} ACCEPTED", message=f"{filter_kwargs(Resources, self.__dict__)}")
+            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} ACCEPTED", message=f"{json.dumps(filter_kwargs(Resources, self.__dict__), indent=4)}")
         if self.status == 'N':
-            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} DECLINED", message=f"{filter_kwargs(Resources, self.__dict__)}")
+            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} DECLINED", message=f"{json.dumps(filter_kwargs(Resources, self.__dict__), indent=4)}")
         else:
-            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} PROCESSING", message=f"{filter_kwargs(Resources, self.__dict__)}")
+            if self.request_type == "WITHDRAW":
+                self.identifier = int(str(uuid.uuid4().int)[:8])
+            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} PROCESSING", message=f"{json.dumps(filter_kwargs(Resources, self.__dict__), indent=4)}")
         super(Request, self).save(*args, **kw)
 
     def __str__(self):

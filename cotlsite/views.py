@@ -114,3 +114,9 @@ def taxes(request, tax_id):
         "table2": table2,
         "table3": table3
     })
+
+
+@login_required(redirect_field_name='state')
+@allowed_users(allowed_roles=['High Government'])
+def dashboard(request):
+    return render(request, "cotlsite/dashboard.html")
