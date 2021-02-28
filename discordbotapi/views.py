@@ -280,6 +280,39 @@ def link_nation(request):
 
 
 @csrf_exempt
+def aid_request(request):
+    if request.method == 'POST':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            nationid = data.pop('nationid')
+            nation, _ = Nation.objects.get_or_create(nationid=nationid)
+            request_object = Request(nation=nation, request_type='AID', **data)
+            request_object.save()
+            return JsonResponse({
+                "POST": "Successful"
+            }, status=201)
+
+
+@csrf_exempt
+def aid_update(request):
+    if request.method == 'PUT':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            aid_request_exists = Request.objects.filter(identifier=data['identifier'], request_type='AID')
+            if aid_request_exists:
+                aid_request_object = aid_request_exists[0]
+                aid_request_object.status = data['status']
+                aid_request_object.save()
+                return JsonResponse({
+                    "PUT": "Successful"
+                }, status=202)
+            else:
+                return JsonResponse({
+                    "error": "Request does not exist."
+                }, status=404)
+
+
+@csrf_exempt
 def bank_deposit(request):
     if request.method == 'POST':
         if APIKey.check_key(request.headers['X-Api-Key']):
@@ -346,21 +379,6 @@ def bank_holdings(request):
 
 
 @csrf_exempt
-def bank_loan(request):
-    if request.method == 'POST':
-        if APIKey.check_key(request.headers['X-Api-Key']):
-            data = json.loads(request.body)
-            nationid = data.pop('nationid')
-            nation, _ = Nation.objects.get_or_create(nationid=nationid)
-
-            request_object = Request(nation=nation, request_type='WITHDRAW', **data)
-            request_object.save()
-            return JsonResponse({
-                "POST": "Successful"
-            }, status=201)
-
-
-@csrf_exempt
 def bank_ava_holdings(request):
     if request.method == 'GET':
         if APIKey.check_key(request.headers['X-Api-Key']):
@@ -375,4 +393,68 @@ def bank_ava_holdings(request):
             else:
                 return JsonResponse({
                     "error": "Holdings does not exist."
+                }, status=404)
+
+
+@csrf_exempt
+def bank_loan(request):
+    if request.method == 'POST':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            nationid = data.pop('nationid')
+            data['pay_by'] = datetime.strptime(data.pop('date'), '%Y/%m/%d').replace(tzinfo=timezone.utc)
+            nation, _ = Nation.objects.get_or_create(nationid=nationid)
+
+            request_object = Request(nation=nation, request_type='LOAN', **data)
+            request_object.save()
+            return JsonResponse({
+                "POST": "Successful"
+            }, status=201)
+
+
+@csrf_exempt
+def active_loans(request):
+    if request.method == 'GET':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            nation, _ = Nation.objects.get_or_create(nationid=data['nationid'])
+            loans_query = Loan.objects.filter(nation=nation, payed=False)
+            if loans_query:
+                return JsonResponse({
+                    'data': list(loans_query.values()),
+                }, status=200)
+            else:
+                return JsonResponse({
+                    'GET': 'Not Found',
+                }, status=404)
+
+
+@csrf_exempt
+def payback_loan(request):
+    if request.method == 'POST':
+        if APIKey.check_key(request.headers['X-Api-Key']):
+            data = json.loads(request.body)
+            loan_object = Loan.objects.get(pk=data['loan_id'])
+            assert loan_object.nation.nationid == data['nationid']
+
+            holding_exists = Holdings.objects.filter(nation__nationid=data['nationid'])
+            if holding_exists:
+                holdings_object = holding_exists[0]
+                ava_holdings_dict = holdings_object.available_holdings()
+                loan_dict = filter_kwargs(Resources, loan_object.__dict__)
+                for resource in loan_dict:
+                    if loan_dict[resource] > ava_holdings_dict[resource]:
+                        return JsonResponse({
+                            "error": "not enough resources to pay the loan"
+                        }, status=404)
+                    setattr(holdings_object, resource, getattr(holdings_object, resource) - loan_dict[resource])
+                holdings_object.save()
+                loan_object.payed = True
+                loan_object.save()
+                return JsonResponse({
+                    "POST": "Successful"
+                }, status=202)
+            else:
+                return JsonResponse({
+                    "error": "no holdings ever registered"
                 }, status=404)

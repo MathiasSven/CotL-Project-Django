@@ -56,6 +56,8 @@ INSTALLED_APPS = [
     'discordlogin.apps.DiscordloginConfig',
     'discordbotapi.apps.DiscordbotapiConfig',
     'pnwdata.apps.PnwdataConfig',
+
+    'admin_reorder',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +68,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'admin_reorder.middleware.ModelAdminReorder',
 ]
 
 ROOT_URLCONF = 'cotlproject.urls'
@@ -87,6 +91,17 @@ TEMPLATES = [
 ]
 
 DJANGO_TABLES2_TEMPLATE = 'django_tables2/bootstrap-responsive.html'
+
+ADMIN_REORDER = (
+    'sites',
+    # Reorder app models
+    {'app': 'pnwdata', 'models': ('pnwdata.AllianceMember', 'pnwdata.Market', 'pnwdata.Bank', 'pnwdata.Holdings', 'pnwdata.Deposit', 'pnwdata.Request', 'pnwdata.Withdraw', 'pnwdata.Loan', 'pnwdata.Aid')},
+    {'app': 'cotlsite'},
+    {'app': 'discordlogin'},
+    {'app': 'auth'},
+    {'app': 'django_celery_beat'},
+    {'app': 'django_celery_results'},
+)
 
 WSGI_APPLICATION = 'cotlproject.wsgi.application'
 

@@ -10,6 +10,8 @@ from datetime import datetime, timezone, timedelta
 from celery import shared_task
 from pathlib import Path
 
+from typing import Literal, overload
+
 from .caller import call_api
 from .models import *
 
@@ -34,6 +36,30 @@ def send_message(nation_id: int, subject: str, message: str):
     url = 'https://politicsandwar.com/api/send-message/'
     response = requests.post(url, {'key': str(config.get('pnw', 'API_KEY')), 'to': nation_id, 'subject': subject, 'message': message})
     return response.text
+
+
+@shared_task()
+def get_transaction(nation_id: int, min_lookup_date: datetime.date, identifier_type: Literal['NOTE', 'TX_ID'], identifier: int) -> dict:
+    import re
+    min_date = min_lookup_date.strftime(format='%Y%m%d')
+    url = f"https://politicsandwar.com/api/v2/nation-bank-recs/{config.get('pnw', 'API_KEY')}/&nation_id={nation_id}&min_tx_date={min_date}&format=1"
+    data = call_api(url)
+    if not data['data']:
+        return None
+    else:
+        regex = re.compile(r'[A-Z]+ \((?P<identifier>\d{4,})\)')
+        for transaction in data['data']:
+            if identifier_type == 'NOTE':
+                match = regex.match(transaction['note'])
+                if match:
+                    if match['identifier'] == str(identifier):
+                        return transaction
+            elif identifier_type == 'TX_ID':
+                if transaction['tx_id'] == identifier:
+                    return transaction
+            else:
+                return
+    return
 
 
 @shared_task()
