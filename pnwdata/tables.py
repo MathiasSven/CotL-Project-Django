@@ -3,6 +3,7 @@ from django.db.models import F, Sum
 
 from django.utils.html import format_html
 
+from cotlsite.models import MemberNation
 from .models import *
 from .formulas import Formulas
 
@@ -95,59 +96,80 @@ class WCTable(tables.Table):
 
     def render_money(self, value, record):
         var = float(self.formulas.war_chest(record.nation.cities)['money'])
-        diff = (value / var) * 100.00
-        if value < var:
-            return format_html(f"<span style='color: red'>${value:,.2f} (%{diff:,.2f})</span>")
-        else:
-            return format_html(f"<span style='color: green'>${value:,.2f} (%{diff:,.2f})</span>")
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>${value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>${value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
 
     def render_food(self, value, record):
         var = float(self.formulas.war_chest(record.nation.cities)['food'])
-        diff = (value / var) * 100.00
-        if value < var:
-            return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
-        else:
-            return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
 
     def render_uranium(self, value, record):
         var = float(self.formulas.war_chest(record.nation.cities)['uranium'])
-        diff = (value / var) * 100.00
-        if value < var:
-            return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
-        else:
-            return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
 
     def render_gasoline(self, value, record):
         var = float(self.formulas.war_chest(record.nation.cities)['gasoline'])
-        diff = (value / var) * 100.00
-        if value < var:
-            return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
-        else:
-            return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
 
     def render_munitions(self, value, record):
         var = float(self.formulas.war_chest(record.nation.cities)['munitions'])
-        diff = (value / var) * 100.00
-        if value < var:
-            return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
-        else:
-            return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
 
     def render_aluminum(self, value, record):
         var = float(self.formulas.war_chest(record.nation.cities)['aluminum'])
-        diff = (value / var) * 100.00
-        if value < var:
-            return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
-        else:
-            return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
 
     def render_steel(self, value, record):
         var = float(self.formulas.war_chest(record.nation.cities)['steel'])
-        diff = (value / var) * 100.00
-        if value < var:
-            return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
-        else:
-            return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
 
     for resource in war_chest_resources:
         exec(f'{resource} = tables.Column()')
@@ -158,11 +180,13 @@ class CityTable(tables.Table):
     def __init__(self, tax_id):
         self.formulas = Formulas()
         q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=self.formulas.next_city_cost(F('nation__cities'), manifest_destiny=True)).annotate(
-            withdraw_link=self.formulas.next_city_cost(F('nation__cities'), manifest_destiny=True))
+            withdraw_link=self.formulas.next_city_cost(F('nation__cities'), manifest_destiny=True), ph1=F('credits'))
         super(CityTable, self).__init__(q_set)
 
     nation__nationid = tables.Column()
     nation__nation = tables.Column()
+
+    ph1 = tables.Column(verbose_name='Discord Ping')
 
     cityprojecttimerturns = tables.Column(verbose_name='City/Project Timer')
 
@@ -170,6 +194,14 @@ class CityTable(tables.Table):
     next_city_cost = FormatColumn(data_type='monetary', verbose_name='Next city cost (MD)')
 
     withdraw_link = tables.Column(verbose_name='Withdraw link (MD)')
+
+    def render_ph1(self, value, record):
+        member_nation_object = MemberNation.objects.filter(nation_id=record.nation.nationid).first()
+        if member_nation_object:
+            return f"<@{member_nation_object.discord_member.id}>"
+        else:
+            return "-"
+
 
     def render_cityprojecttimerturns(self, value, record):
         return format_html(f"<span>{value} Turns</span>")
@@ -244,7 +276,7 @@ class NationGrade(tables.Table):
         mmr_values = self.formulas.mmr(value)
         for mmr_value in mmr_values:
             if mmr_values[mmr_value] != 0:
-                value_shown += f'{round((getattr(record.nation.nationmilitary, mmr_value)/mmr_values[mmr_value]) * 100)}%/'
+                value_shown += f'{round((getattr(record.nation.nationmilitary, mmr_value) / mmr_values[mmr_value]) * 100)}%/'
             else:
                 value_shown += '-/'
         value_shown = value_shown[:-1]
