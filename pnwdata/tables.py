@@ -155,8 +155,8 @@ class WCTable(tables.Table):
 # noinspection PyMethodMayBeStatic
 class CityTable(tables.Table):
     def __init__(self, tax_id):
-        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=next_city_cost(F('nation__cities'))).annotate(
-            withdraw_link=next_city_cost(F('nation__cities')))
+        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=next_city_cost(F('nation__cities'), manifest_destiny=True)).annotate(
+            withdraw_link=next_city_cost(F('nation__cities'), manifest_destiny=True))
         super(CityTable, self).__init__(q_set)
 
     nation__nationid = tables.Column()
@@ -172,9 +172,26 @@ class CityTable(tables.Table):
     def render_cityprojecttimerturns(self, value, record):
         return format_html(f"<span>{value} Turns</span>")
 
+    def render_next_city_cost(self, value, record):
+        suffix = ''
+        if record.nation.projects.city_planning:
+            value -= 50000000
+            suffix += ' (UP)'
+        if record.nation.projects.adv_city_planning:
+            value -= 100000000
+            suffix = suffix[:-1] + '+AUP)'
+        return format_html(f"<span>${value:,.2f}{suffix}</span>")
+
     def render_nation__nation(self, value, record):
         return format_html(f"<a href='https://politicsandwar.com/nation/id={record.nation.nationid}' target='_blank'>{value}</a>")
 
     def render_withdraw_link(self, value, record):
+        suffix = ''
+        if record.nation.projects.city_planning:
+            value -= 50000000
+            suffix += '%20(UP)'
+        if record.nation.projects.adv_city_planning:
+            value -= 100000000
+            suffix = suffix[:-1] + '%20AUP)'
         return format_html(
-            f"<a href='https://politicsandwar.com/alliance/id=7452&display=bank&w_type=nation&w_recipient={record.nation.nation.replace(' ', '%20')}&w_note={record.nation.cities + 1}%20City&w_money={int(value)}' target='_blank'>Link Here</a>")
+            f"<a href='https://politicsandwar.com/alliance/id=7452&display=bank&w_type=nation&w_recipient={record.nation.nation.replace(' ', '%20')}&w_note={record.nation.cities + 1}{suffix}%20City&w_money={int(value)}' target='_blank'>Link Here</a>")
