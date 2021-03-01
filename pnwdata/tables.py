@@ -225,23 +225,23 @@ class NationGrade(tables.Table):
         return f"{value // 60} H"
 
     def render_ph1(self, value, record):
-        return f"{record.active_days_since(days_ago=30)} Days"
+        return f"{30 - record.active_days_since(days_ago=29)} Days"
 
     def render_ph2(self, value, record):
-        return f"{record.active_days_since(days_ago=14)} Days"
+        return f"{14 - record.active_days_since(days_ago=13)} Days"
 
     def render_ph3(self, value, record):
-        return f"{record.active_days_since(days_ago=7)} Days"
+        return f"{7 - record.active_days_since(days_ago=6)} Days"
 
     def render_ph4(self, value, record):
-        return f"{record.active_days_since(days_ago=3)} Days"
+        return f"{3 - record.active_days_since(days_ago=2)} Days"
 
     def render_ph5(self, value, record):
         value_shown = ''
         mmr_values = mmr(value)
         for mmr_value in mmr_values:
             if mmr_values[mmr_value] != 0:
-                value_shown += f'{round(getattr(record.nation.nationmilitary, mmr_value)/mmr_values[mmr_value])}%/'
+                value_shown += f'{round((getattr(record.nation.nationmilitary, mmr_value)/mmr_values[mmr_value]) * 100)}%/'
             else:
                 value_shown += '-/'
         value_shown = value_shown[:-1]
@@ -258,7 +258,10 @@ class NationGrade(tables.Table):
             else:
                 value_delta += getattr(record, resource) * Market.objects.get(resource=resource).avgprice
 
-        return f"${value_delta:,.2f}"
+        if value_delta < 0:
+            return format_html(f"<span style='color: red'>${value_delta:,.2f}</span>")
+        else:
+            return format_html(f"<span style='color: green'>${value_delta:,.2f}</span>")
 
     def render_ph7(self, value, record):
         resources = [resource.name for resource in Resources._meta.get_fields()]
@@ -273,7 +276,10 @@ class NationGrade(tables.Table):
 
         value_delta = value_delta / record.nation.cities
 
-        return f"${value_delta:,.2f}"
+        if value_delta < 0:
+            return format_html(f"<span style='color: red'>${value_delta:,.2f}</span>")
+        else:
+            return format_html(f"<span style='color: green'>${value_delta:,.2f}</span>")
 
     def render_ph8(self, value, record):
         return 0
