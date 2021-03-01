@@ -4,7 +4,7 @@ from django.db.models import F, Sum
 from django.utils.html import format_html
 
 from .models import *
-from .formulas import *
+from .formulas import Formulas
 
 import configparser
 from pathlib import Path
@@ -81,6 +81,7 @@ def check_authorization(f):
 # noinspection PyMethodMayBeStatic,PyAttributeOutsideInit
 class WCTable(tables.Table):
     def __init__(self, tax_id):
+        self.formulas = Formulas()
         q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct()
         super(WCTable, self).__init__(q_set)
 
@@ -93,7 +94,7 @@ class WCTable(tables.Table):
         return format_html(f"<a href='https://politicsandwar.com/nation/id={record.nation.nationid}' target='_blank'>{value}</a>")
 
     def render_money(self, value, record):
-        var = float(war_chest(record.nation.cities)['money'])
+        var = float(self.formulas.war_chest(record.nation.cities)['money'])
         diff = (value / var) * 100.00
         if value < var:
             return format_html(f"<span style='color: red'>${value:,.2f} (%{diff:,.2f})</span>")
@@ -101,7 +102,7 @@ class WCTable(tables.Table):
             return format_html(f"<span style='color: green'>${value:,.2f} (%{diff:,.2f})</span>")
 
     def render_food(self, value, record):
-        var = float(war_chest(record.nation.cities)['food'])
+        var = float(self.formulas.war_chest(record.nation.cities)['food'])
         diff = (value / var) * 100.00
         if value < var:
             return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
@@ -109,7 +110,7 @@ class WCTable(tables.Table):
             return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
 
     def render_uranium(self, value, record):
-        var = float(war_chest(record.nation.cities)['uranium'])
+        var = float(self.formulas.war_chest(record.nation.cities)['uranium'])
         diff = (value / var) * 100.00
         if value < var:
             return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
@@ -117,7 +118,7 @@ class WCTable(tables.Table):
             return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
 
     def render_gasoline(self, value, record):
-        var = float(war_chest(record.nation.cities)['gasoline'])
+        var = float(self.formulas.war_chest(record.nation.cities)['gasoline'])
         diff = (value / var) * 100.00
         if value < var:
             return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
@@ -125,7 +126,7 @@ class WCTable(tables.Table):
             return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
 
     def render_munitions(self, value, record):
-        var = float(war_chest(record.nation.cities)['munitions'])
+        var = float(self.formulas.war_chest(record.nation.cities)['munitions'])
         diff = (value / var) * 100.00
         if value < var:
             return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
@@ -133,7 +134,7 @@ class WCTable(tables.Table):
             return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
 
     def render_aluminum(self, value, record):
-        var = float(war_chest(record.nation.cities)['aluminum'])
+        var = float(self.formulas.war_chest(record.nation.cities)['aluminum'])
         diff = (value / var) * 100.00
         if value < var:
             return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
@@ -141,7 +142,7 @@ class WCTable(tables.Table):
             return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
 
     def render_steel(self, value, record):
-        var = float(war_chest(record.nation.cities)['steel'])
+        var = float(self.formulas.war_chest(record.nation.cities)['steel'])
         diff = (value / var) * 100.00
         if value < var:
             return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
@@ -155,8 +156,9 @@ class WCTable(tables.Table):
 # noinspection PyMethodMayBeStatic
 class CityTable(tables.Table):
     def __init__(self, tax_id):
-        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=next_city_cost(F('nation__cities'), manifest_destiny=True)).annotate(
-            withdraw_link=next_city_cost(F('nation__cities'), manifest_destiny=True))
+        self.formulas = Formulas()
+        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(next_city_cost=self.formulas.next_city_cost(F('nation__cities'), manifest_destiny=True)).annotate(
+            withdraw_link=self.formulas.next_city_cost(F('nation__cities'), manifest_destiny=True))
         super(CityTable, self).__init__(q_set)
 
     nation__nationid = tables.Column()
@@ -200,6 +202,7 @@ class CityTable(tables.Table):
 # noinspection PyMethodMayBeStatic,DuplicatedCode
 class NationGrade(tables.Table):
     def __init__(self, tax_id):
+        self.formulas = Formulas()
         q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(ph1=F('credits'), ph2=F('credits'), ph3=F('credits'), ph4=F('credits'), ph5=F('nation__cities'),
                                                                                                     ph6=F('nation__cities'), ph7=F('credits'), ph8=F('credits'))
         super(NationGrade, self).__init__(q_set)
@@ -225,23 +228,23 @@ class NationGrade(tables.Table):
         return f"{value // 60} H"
 
     def render_ph1(self, value, record):
-        return f"{record.active_days_since(days_ago=30)} Days"
+        return f"{30 - record.active_days_since(days_ago=29)} Days"
 
     def render_ph2(self, value, record):
-        return f"{record.active_days_since(days_ago=14)} Days"
+        return f"{14 - record.active_days_since(days_ago=13)} Days"
 
     def render_ph3(self, value, record):
-        return f"{record.active_days_since(days_ago=7)} Days"
+        return f"{7 - record.active_days_since(days_ago=6)} Days"
 
     def render_ph4(self, value, record):
-        return f"{record.active_days_since(days_ago=3)} Days"
+        return f"{3 - record.active_days_since(days_ago=2)} Days"
 
     def render_ph5(self, value, record):
         value_shown = ''
-        mmr_values = mmr(value)
+        mmr_values = self.formulas.mmr(value)
         for mmr_value in mmr_values:
             if mmr_values[mmr_value] != 0:
-                value_shown += f'{round(getattr(record.nation.nationmilitary, mmr_value)/mmr_values[mmr_value])}%/'
+                value_shown += f'{round((getattr(record.nation.nationmilitary, mmr_value)/mmr_values[mmr_value]) * 100)}%/'
             else:
                 value_shown += '-/'
         value_shown = value_shown[:-1]
@@ -250,7 +253,7 @@ class NationGrade(tables.Table):
     def render_ph6(self, value, record):
         resources = [resource.name for resource in Resources._meta.get_fields()]
         resources.pop(0)
-        wc_requirements = war_chest(record.nation.cities)
+        wc_requirements = self.formulas.war_chest(record.nation.cities)
         value_delta = -1 * wc_requirements.pop('money') + record.money
         for resource in resources:
             if resource in wc_requirements:
@@ -258,12 +261,15 @@ class NationGrade(tables.Table):
             else:
                 value_delta += getattr(record, resource) * Market.objects.get(resource=resource).avgprice
 
-        return f"${value_delta:,.2f}"
+        if value_delta < 0:
+            return format_html(f"<span style='color: red'>${value_delta:,.2f}</span>")
+        else:
+            return format_html(f"<span style='color: green'>${value_delta:,.2f}</span>")
 
     def render_ph7(self, value, record):
         resources = [resource.name for resource in Resources._meta.get_fields()]
         resources.pop(0)
-        wc_requirements = war_chest(record.nation.cities)
+        wc_requirements = self.formulas.war_chest(record.nation.cities)
         value_delta = -1 * wc_requirements.pop('money') + record.money
         for resource in resources:
             if resource in wc_requirements:
@@ -273,7 +279,10 @@ class NationGrade(tables.Table):
 
         value_delta = value_delta / record.nation.cities
 
-        return f"${value_delta:,.2f}"
+        if value_delta < 0:
+            return format_html(f"<span style='color: red'>${value_delta:,.2f}</span>")
+        else:
+            return format_html(f"<span style='color: green'>${value_delta:,.2f}</span>")
 
     def render_ph8(self, value, record):
         return 0
