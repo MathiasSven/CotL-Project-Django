@@ -1,7 +1,11 @@
 from .models import AllianceConfig
 from .exceptions import AllianceConfigError
+import sys
 
-config = AllianceConfig.objects.filter(enabled=True).first()
+if not ('migrate' in sys.argv):
+    config = AllianceConfig.objects.filter(enabled=True).first()
+else:
+    config = True
 
 if not config:
     raise AllianceConfigError
