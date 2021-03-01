@@ -67,15 +67,8 @@ class GeoData(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     local_timezone_offset = models.IntegerField(null=True)
 
-    ip = models.GenericIPAddressField(null=True)
-    country_code = models.CharField(max_length=5, null=True)
     country_name = models.CharField(max_length=20, null=True)
-    region_name = models.CharField(max_length=20, null=True)
-    city = models.CharField(max_length=20, null=True)
     time_zone = models.CharField(max_length=20, null=True)
-
-    latitude = models.FloatField(null=True)
-    longitude = models.FloatField(null=True)
 
     class Meta:
         verbose_name = _('User Geo Data')
