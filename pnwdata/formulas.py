@@ -1,14 +1,10 @@
 from .models import AllianceConfig
-from .exceptions import AllianceConfigError
 import sys
 
 if not ('migrate' in sys.argv):
     config = AllianceConfig.objects.filter(enabled=True).first()
 else:
-    config = True
-
-if not config:
-    raise AllianceConfigError
+    config = None
 
 
 def next_city_cost(current_count: int, manifest_destiny=False):

@@ -535,15 +535,15 @@ class AllianceConfig(models.Model):
     name = models.CharField(max_length=30, unique=True)
     enabled = models.BooleanField(default=False, blank=True)
 
-    mmr = models.CharField(max_length=4)
+    mmr = models.CharField(max_length=4, default='0000')
 
-    wc_money = models.IntegerField()
-    wc_food = models.IntegerField()
-    wc_uranium = models.IntegerField()
-    wc_gasoline = models.IntegerField()
-    wc_munitions = models.IntegerField()
-    wc_steel = models.IntegerField()
-    wc_aluminum = models.IntegerField()
+    wc_money = models.IntegerField(default=0)
+    wc_food = models.IntegerField(default=0)
+    wc_uranium = models.IntegerField(default=0)
+    wc_gasoline = models.IntegerField(default=0)
+    wc_munitions = models.IntegerField(default=0)
+    wc_steel = models.IntegerField(default=0)
+    wc_aluminum = models.IntegerField(default=0)
 
     last_modified = models.DateField(auto_now=True)
 
