@@ -22,3 +22,7 @@ class InvalidPermissions(APIKeyError):
 
 class InvalidRequest(Exception):
     """Raised on invalid API calls"""
+
+
+class AllianceConfigError(Exception):
+    """Raised when no Alliance Configuration is set up"""

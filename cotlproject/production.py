@@ -116,7 +116,7 @@ DJANGO_TABLES2_TEMPLATE = 'django_tables2/bootstrap-responsive.html'
 ADMIN_REORDER = (
     'sites',
     # Reorder app models
-    {'app': 'pnwdata', 'models': ('pnwdata.AllianceMember', 'pnwdata.Market', 'pnwdata.Bank', 'pnwdata.Holdings', 'pnwdata.Deposit', 'pnwdata.Request', 'pnwdata.Withdraw', 'pnwdata.Loan', 'pnwdata.Aid')},
+    {'app': 'pnwdata', 'models': ('pnwdata.AllianceConfig', 'pnwdata.AllianceMember', 'pnwdata.Market', 'pnwdata.Bank', 'pnwdata.Holdings', 'pnwdata.Deposit', 'pnwdata.Request', 'pnwdata.Withdraw', 'pnwdata.Loan', 'pnwdata.Aid')},
     {'app': 'cotlsite'},
     {'app': 'discordlogin'},
     {'app': 'auth'},

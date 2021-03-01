@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import *
 
 
@@ -172,3 +173,35 @@ class RequestAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+from django import forms
+
+
+class AllianceConfigForm(forms.ModelForm):
+    name = forms.CharField()
+    enabled = forms.BooleanField(required=False)
+    mmr = forms.RegexField(label='MMR', regex='^[0-5]{3}[0-3]{1}$', initial='0000')
+    wc_money = forms.IntegerField(label='WC Money')
+    wc_food = forms.IntegerField(label='WC Food')
+    wc_uranium = forms.IntegerField(label='WC Uranium')
+    wc_gasoline = forms.IntegerField(label='WC Gasoline')
+    wc_munitions = forms.IntegerField(label='WC Munitions')
+    wc_steel = forms.IntegerField(label='WC Steel')
+    wc_aluminum = forms.IntegerField(label='WC Aluminum')
+
+    class Meta:
+        model = AllianceConfig
+        exclude = []
+
+
+@admin.register(AllianceConfig)
+class AllianceConfigAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'last_modified', 'enabled')
+    form = AllianceConfigForm
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj.enabled:
+            return ['enabled']
+        else:
+            return []

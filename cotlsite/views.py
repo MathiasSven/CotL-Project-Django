@@ -99,7 +99,7 @@ class AllianceMemberAutocomplete(autocomplete.Select2QuerySetView):
         return format_html('<img style="width: {}px; height: {}px;" src="{}"> {}', dimensions[0], dimensions[1], flag_url, item.__str__().replace(" Alliance Member", ""))
 
 
-from pnwdata.tables import TaxTable, WCTable, CityTable
+from pnwdata.tables import TaxTable, WCTable, CityTable, NationGrade
 
 
 @login_required(redirect_field_name='state')
@@ -108,11 +108,13 @@ def taxes(request, tax_id):
     table1 = TaxTable(tax_id)
     table2 = WCTable(tax_id)
     table3 = CityTable(tax_id)
+    table4 = NationGrade(tax_id)
 
     return render(request, "cotlsite/tables.html", {
         "table1": table1,
         "table2": table2,
-        "table3": table3
+        "table3": table3,
+        "table4": table4
     })
 
 

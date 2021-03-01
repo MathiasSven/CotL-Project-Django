@@ -195,3 +195,85 @@ class CityTable(tables.Table):
             suffix = suffix[:-1] + '%20AUP)'
         return format_html(
             f"<a href='https://politicsandwar.com/alliance/id=7452&display=bank&w_type=nation&w_recipient={record.nation.nation.replace(' ', '%20')}&w_note={record.nation.cities + 1}{suffix}%20City&w_money={int(value)}' target='_blank'>Link Here</a>")
+
+
+# noinspection PyMethodMayBeStatic,DuplicatedCode
+class NationGrade(tables.Table):
+    def __init__(self, tax_id):
+        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).distinct().annotate(ph1=F('credits'), ph2=F('credits'), ph3=F('credits'), ph4=F('credits'), ph5=F('nation__cities'),
+                                                                                                    ph6=F('nation__cities'), ph7=F('credits'), ph8=F('credits'))
+        super(NationGrade, self).__init__(q_set)
+
+    nation__nation = tables.Column()
+
+    nation__minutessinceactive = tables.Column(verbose_name='Hours Since Active')
+    ph1 = tables.Column(verbose_name='Inactive days in the last 30 Days')
+    ph2 = tables.Column(verbose_name='14 Days')
+    ph3 = tables.Column(verbose_name='7 Days')
+    ph4 = tables.Column(verbose_name='3 Days')
+
+    ph5 = tables.Column(verbose_name='MMR Percentages')
+    ph6 = tables.Column(verbose_name='Net WC')
+    ph7 = tables.Column(verbose_name='Net WC p/city')
+
+    ph8 = tables.Column(verbose_name='Overall Score')
+
+    def render_nation__nation(self, value, record):
+        return format_html(f"<a href='https://politicsandwar.com/nation/id={record.nation.nationid}' target='_blank'>{value}</a>")
+
+    def render_nation__minutessinceactive(self, value, record):
+        return f"{value // 60} H"
+
+    def render_ph1(self, value, record):
+        return f"{record.active_days_since(days_ago=30)} Days"
+
+    def render_ph2(self, value, record):
+        return f"{record.active_days_since(days_ago=14)} Days"
+
+    def render_ph3(self, value, record):
+        return f"{record.active_days_since(days_ago=7)} Days"
+
+    def render_ph4(self, value, record):
+        return f"{record.active_days_since(days_ago=3)} Days"
+
+    def render_ph5(self, value, record):
+        value_shown = ''
+        mmr_values = mmr(value)
+        for mmr_value in mmr_values:
+            if mmr_values[mmr_value] != 0:
+                value_shown += f'{round(getattr(record.nation.nationmilitary, mmr_value)/mmr_values[mmr_value])}%/'
+            else:
+                value_shown += '-/'
+        value_shown = value_shown[:-1]
+        return value_shown
+
+    def render_ph6(self, value, record):
+        resources = [resource.name for resource in Resources._meta.get_fields()]
+        resources.pop(0)
+        wc_requirements = war_chest(record.nation.cities)
+        value_delta = -1 * wc_requirements.pop('money') + record.money
+        for resource in resources:
+            if resource in wc_requirements:
+                value_delta += (getattr(record, resource) - wc_requirements[resource]) * Market.objects.get(resource=resource).avgprice
+            else:
+                value_delta += getattr(record, resource) * Market.objects.get(resource=resource).avgprice
+
+        return f"${value_delta:,.2f}"
+
+    def render_ph7(self, value, record):
+        resources = [resource.name for resource in Resources._meta.get_fields()]
+        resources.pop(0)
+        wc_requirements = war_chest(record.nation.cities)
+        value_delta = -1 * wc_requirements.pop('money') + record.money
+        for resource in resources:
+            if resource in wc_requirements:
+                value_delta += (getattr(record, resource) - wc_requirements[resource]) * Market.objects.get(resource=resource).avgprice
+            else:
+                value_delta += getattr(record, resource) * Market.objects.get(resource=resource).avgprice
+
+        value_delta = value_delta / record.nation.cities
+
+        return f"${value_delta:,.2f}"
+
+    def render_ph8(self, value, record):
+        return 0

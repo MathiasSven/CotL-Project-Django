@@ -529,3 +529,31 @@ class Request(Resources):
 
     def __str__(self):
         return f'{self.request_type} by {self.nation.nation} ({self.nation.nationid})'
+
+
+class AllianceConfig(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+    enabled = models.BooleanField(default=False, blank=True)
+
+    mmr = models.CharField(max_length=4)
+
+    wc_money = models.IntegerField()
+    wc_food = models.IntegerField()
+    wc_uranium = models.IntegerField()
+    wc_gasoline = models.IntegerField()
+    wc_munitions = models.IntegerField()
+    wc_steel = models.IntegerField()
+    wc_aluminum = models.IntegerField()
+
+    last_modified = models.DateField(auto_now=True)
+
+    def save(self, *args, **kw):
+        if self.enabled:
+            AllianceConfig.objects.all().exclude(pk=self.pk).update(enabled=False)
+        else:
+            if not AllianceConfig.objects.filter(enabled=True).exclude(pk=self.pk):
+                self.enabled = True
+        super(AllianceConfig, self).save(*args, **kw)
+
+    def __str__(self):
+        return self.name
