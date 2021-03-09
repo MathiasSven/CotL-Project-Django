@@ -10,6 +10,7 @@ urlpatterns = [
 
     path("report/dashboard", views.dashboard, name="dashboard"),
     path("report/taxes/<int:tax_id>", views.taxes, name="taxes"),
+    path("report/income/<int:turns>", views.income, name="income"),
 
     path("select2/alliance-members", views.AllianceMemberAutocomplete.as_view(), name="alliance-members-autocomplete"),
 ]

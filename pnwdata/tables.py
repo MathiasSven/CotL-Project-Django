@@ -65,6 +65,35 @@ class TaxTable(tables.Table):
     net_value = SummingColumn(data_type='monetary')
 
 
+class DateTaxTable(tables.Table):
+    def __init__(self, turns, tax_id):
+        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).filter(nation__taxrecord__date__gte=datetime.utcnow() - timedelta(hours=turns * 2))
+        net_value_f_expression = 0
+        for resource in Resources._meta.get_fields():
+            annotate_kwargs = {f'taxed_{resource.name}': Sum(f"nation__taxrecord__{resource.name}")}
+            q_set = q_set.annotate(**annotate_kwargs)
+            net_value_f_expression += F(f'nation__taxrecord__{resource.name}') * (Market.objects.get(pk=resource.name).avgprice if resource.name != 'money' else 1)
+
+        q_set = q_set.annotate(net_value=Sum(net_value_f_expression))
+        super(DateTaxTable, self).__init__(q_set)
+
+    nation__nationid = tables.Column()
+    nation__nation = tables.Column()
+
+    for resource in Resources._meta.get_fields():
+        if resource.name == "money":
+            taxed_money = SummingColumn(data_type='monetary')
+            continue
+        exec(f'taxed_{resource.name} = SummingColumn()')
+
+    # noinspection PyMethodMayBeStatic
+    def render_nation__nation(self, value, record):
+        return format_html(f"<a href='https://politicsandwar.com/nation/id={record.nation.nationid}' target='_blank'>{value}</a>")
+
+    net_value = SummingColumn(data_type='monetary')
+
+
+
 # class ProjectsTable(tables.Table):
 #     def __init__(self, tax_id):
 #         q_set = Projects.objects.filter(nation__taxrecord__tax_id=tax_id)
