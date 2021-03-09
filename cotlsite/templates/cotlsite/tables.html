@@ -6,12 +6,9 @@
 {% endblock %}
 {% block body %}
     <div class="tables-container">
-        {% render_table table1 %}
-        <hr class="rounded">
-        {% render_table table2 %}
-        <hr class="rounded">
-        {% render_table table3 %}
-        <hr class="rounded">
-        {% render_table table4 %}
+        {% for table in tables %}
+            {% render_table table %}
+            <hr class="rounded">
+        {% endfor %}
     </div>
 {% endblock %}

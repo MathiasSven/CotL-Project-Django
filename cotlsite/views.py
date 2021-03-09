@@ -99,7 +99,8 @@ class AllianceMemberAutocomplete(autocomplete.Select2QuerySetView):
         return format_html('<img style="width: {}px; height: {}px;" src="{}"> {}', dimensions[0], dimensions[1], flag_url, item.__str__().replace(" Alliance Member", ""))
 
 
-from pnwdata.tables import TaxTable, WCTable, CityTable, NationGrade
+from pnwdata.tables import TaxTable, WCTable, CityTable, NationGrade, DateTaxTable
+from pnwdata.models import TaxRecord
 
 
 @login_required(redirect_field_name='state')
@@ -110,11 +111,22 @@ def taxes(request, tax_id):
     table3 = CityTable(tax_id)
     table4 = NationGrade(tax_id)
 
+    tables = [table1, table2, table3, table4]
+
     return render(request, "cotlsite/tables.html", {
-        "table1": table1,
-        "table2": table2,
-        "table3": table3,
-        "table4": table4
+        "tables": tables
+    })
+
+@login_required(redirect_field_name='state')
+@allowed_users(allowed_roles=['High Government'])
+def income(request, turns):
+    tax_brackets = TaxRecord.objects.values('tax_id').distinct().order_by('-tax_id')
+    tables = []
+    for tax_bracket in tax_brackets:
+        tables.append(DateTaxTable(turns, tax_bracket['tax_id']))
+
+    return render(request, "cotlsite/tables.html", {
+        "tables": tables
     })
 
 

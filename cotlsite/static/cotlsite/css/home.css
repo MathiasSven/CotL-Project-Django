@@ -16,20 +16,19 @@ li > a:hover {
 
 #banners {
     position: absolute;
-    width: 250px;
-    height: 650px;
-    left: 30px;
-    top: -150px;
-    transform: rotate(0.15deg);
+    width: 130px;
+    height: 450px;
+    left: 96px;
+    top: -134px;
     transition: top 0.3s;
 }
 
 #banners:hover {
     position: absolute;
-    width: 250px;
-    height: 650px;
-    left: 30px;
-    top: -66px;
+    width: 130px;
+    height: 450px;
+    left: 96px;
+    top: -50px;
     transform: rotate(0.15deg);
     transition: top 0.3s;
 }
