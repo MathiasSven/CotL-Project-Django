@@ -67,7 +67,7 @@ class TaxTable(tables.Table):
 
 class DateTaxTable(tables.Table):
     def __init__(self, turns, tax_id):
-        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id).filter(nation__taxrecord__date__gte=datetime.utcnow() - timedelta(hours=3 + turns * 2))
+        q_set = AllianceMember.objects.filter(nation__taxrecord__tax_id=tax_id, nation__taxrecord__date__gte=datetime.utcnow() - timedelta(hours=3 + turns * 2))
         net_value_f_expression = 0
         for resource in Resources._meta.get_fields():
             annotate_kwargs = {f'taxed_{resource.name}': Sum(f"nation__taxrecord__{resource.name}")}

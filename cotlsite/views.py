@@ -101,6 +101,7 @@ class AllianceMemberAutocomplete(autocomplete.Select2QuerySetView):
 
 from pnwdata.tables import TaxTable, WCTable, CityTable, NationGrade, DateTaxTable
 from pnwdata.models import TaxRecord
+from django_tables2 import RequestConfig
 
 
 @login_required(redirect_field_name='state')
@@ -110,6 +111,11 @@ def taxes(request, tax_id):
     table2 = WCTable(tax_id)
     table3 = CityTable(tax_id)
     table4 = NationGrade(tax_id)
+
+    RequestConfig(request, paginate=False).configure(table1)
+    RequestConfig(request, paginate=False).configure(table2)
+    RequestConfig(request, paginate=False).configure(table3)
+    RequestConfig(request, paginate=False).configure(table4)
 
     tables = [table1, table2, table3, table4]
 
@@ -124,6 +130,9 @@ def income(request, turns):
     tables = []
     for tax_bracket in tax_brackets:
         tables.append(DateTaxTable(turns, tax_bracket['tax_id']))
+
+    for table in tables:
+        RequestConfig(request, paginate=False).configure(table)
 
     return render(request, "cotlsite/tables.html", {
         "tables": tables
