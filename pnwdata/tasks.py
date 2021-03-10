@@ -216,40 +216,36 @@ def update_market():
         Market.objects.filter(resource=resource).update(avgprice=data['avgprice'], marketindex=data['marketindex'].replace(",", ""))
 
 
-# noinspection DuplicatedCode
 @shared_task()
-def push_to_sheets():
+def alliance_member_to_sheets(sheet_id: int, worksheet_name: str, fields: list):
     scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
     credentials = ServiceAccountCredentials.from_json_keyfile_name(f"{BASE_DIR}/credentials.json", scope)
     client = gspread.authorize(credentials)
 
-    sheet = client.open_by_key(config.get("googlesheets", "SHEET_KEY"))
-    data_dump_worksheet_name = config.get("googlesheets", "DATA_DUMP_NAME")
+    sheet = client.open_by_key(sheet_id)
+    data_dump_worksheet_name = worksheet_name
     data_dump_worksheet = sheet.worksheet(data_dump_worksheet_name)
 
-    sheet.values_clear(f"{data_dump_worksheet_name}!A2:{gspread.utils.rowcol_to_a1(100, 29)}")
+    from django.db.models import Model
+    alliance_members = AllianceMember.objects.all()
 
-    members = []
-    for alliance_member_object in AllianceMember.objects.all():
-        members.append([
-            alliance_member_object.nation.nation,
-            f"https://politicsandwar.com/nation/id={alliance_member_object.nation.nationid}",
-            alliance_member_object.nation.nationid,
-            alliance_member_object.nation.leader,
-            alliance_member_object.nation.cities,
-            alliance_member_object.nation.score,
-            alliance_member_object.nation.minutessinceactive,
-            alliance_member_object.cityprojecttimerturns,
-            alliance_member_object.nation.infrastructure,
-            alliance_member_object.nation.nationmilitary.soldiers,
-            alliance_member_object.nation.nationmilitary.tanks,
-            alliance_member_object.nation.nationmilitary.aircraft,
-            alliance_member_object.nation.nationmilitary.ships,
-            alliance_member_object.nation.nationmilitary.missiles,
-            alliance_member_object.nation.nationmilitary.nukes,
-        ])
-    update_range = f"A2:{gspread.utils.rowcol_to_a1(len(members) + 1, 18)}"
-    print(len(members))
+    members = [fields]
+    for alliance_member_object in alliance_members:
+        row_list = []
+        for field in fields:
+            field_lookup = field.split(".")
+            instance_lookup = alliance_member_object
+            attribute = None
+            for lookup in field_lookup:
+                attribute = getattr(instance_lookup, lookup)
+                if isinstance(attribute, Model):
+                    instance_lookup = attribute
+            row_list.append(attribute)
+        members.append(row_list)
+
+    sheet.values_clear(f"{data_dump_worksheet_name}!A1:{gspread.utils.rowcol_to_a1(150, 30)}")
+
+    update_range = f"A1:{gspread.utils.rowcol_to_a1(len(members) + 2, len(fields))}"
     data_dump_worksheet.batch_update([{
         'range': update_range,
         'values': members,
