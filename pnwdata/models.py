@@ -5,8 +5,6 @@ from django.db import models
 from django.utils.timezone import now
 from datetime import datetime, timedelta
 
-from .tasks import send_message, get_transaction
-
 
 # noinspection PyProtectedMember
 def filter_kwargs(model, arg_dict):
@@ -353,6 +351,7 @@ class Loan(Resources):
     def save(self, *args, **kw):
         if self.payed:
             self.payed_on = models.fields.datetime.datetime.utcnow()
+            from .tasks import send_message
             send_message(nation_id=self.nation.nationid, subject=f"LOAN PAYED BACK", message=f"{json.dumps(filter_kwargs(Resources, self.__dict__), indent=4)}")
         super(Loan, self).save(*args, **kw)
 
@@ -499,6 +498,7 @@ class Request(Resources):
         return request_link
 
     def save(self, *args, **kw):
+        from .tasks import send_message, get_transaction
         if self.status == 'Y':
             if self.request_type == "AID":
                 self.message_id = self.identifier
