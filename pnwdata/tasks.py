@@ -217,7 +217,7 @@ def update_market():
 
 
 @shared_task()
-def alliance_member_to_sheets(sheet_id: int, worksheet_name: str, fields: list):
+def alliance_member_to_sheets(sheet_id: str, worksheet_name: str, fields: list):
     scope = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/spreadsheets', "https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive"]
     credentials = ServiceAccountCredentials.from_json_keyfile_name(f"{BASE_DIR}/credentials.json", scope)
     client = gspread.authorize(credentials)

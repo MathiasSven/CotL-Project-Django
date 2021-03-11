@@ -12,5 +12,8 @@ urlpatterns = [
     path("report/taxes/<int:tax_id>", views.taxes, name="taxes"),
     path("report/income/<int:turns>", views.income, name="income"),
 
+    path("report/milcom/", views.milcom, name="milcom"),
+
+
     path("select2/alliance-members", views.AllianceMemberAutocomplete.as_view(), name="alliance-members-autocomplete"),
 ]
