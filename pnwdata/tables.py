@@ -93,7 +93,6 @@ class DateTaxTable(tables.Table):
     net_value = SummingColumn(data_type='monetary')
 
 
-
 # class ProjectsTable(tables.Table):
 #     def __init__(self, tax_id):
 #         q_set = Projects.objects.filter(nation__taxrecord__tax_id=tax_id)
@@ -231,7 +230,6 @@ class CityTable(tables.Table):
         else:
             return "-"
 
-
     def render_cityprojecttimerturns(self, value, record):
         return format_html(f"<span>{value} Turns</span>")
 
@@ -347,3 +345,137 @@ class NationGrade(tables.Table):
 
     def render_ph8(self, value, record):
         return 0
+
+
+class MilcomTable(tables.Table):
+    def __init__(self):
+        self.formulas = Formulas()
+        q_set = AllianceMember.objects.all().annotate(ph1=F('credits'), ph2=F('nation__cities'), ph3=F('nation__cities'))
+        super(MilcomTable, self).__init__(q_set)
+
+    nation__nationid = tables.Column()
+    ph1 = tables.Column(verbose_name='Discord Ping')
+    nation__nation = tables.Column()
+    nation__cities = tables.Column()
+    war_chest_resources = ['money', 'food', 'uranium', 'gasoline', 'munitions', 'steel', 'aluminum']
+    ph2 = tables.Column(verbose_name='MMR Percentages')
+    ph3 = tables.Column(verbose_name='Net WC')
+
+    def render_nation__nation(self, value, record):
+        return format_html(
+            f"<a href='https://politicsandwar.com/nation/id={record.nation.nationid}' target='_blank'>{value}</a>")
+
+    def render_money(self, value, record):
+        var = float(self.formulas.war_chest(record.nation.cities)['money'])
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>${value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>${value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
+
+    def render_food(self, value, record):
+        var = float(self.formulas.war_chest(record.nation.cities)['food'])
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
+
+    def render_uranium(self, value, record):
+        var = float(self.formulas.war_chest(record.nation.cities)['uranium'])
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
+
+    def render_gasoline(self, value, record):
+        var = float(self.formulas.war_chest(record.nation.cities)['gasoline'])
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
+
+    def render_munitions(self, value, record):
+        var = float(self.formulas.war_chest(record.nation.cities)['munitions'])
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
+
+    def render_aluminum(self, value, record):
+        var = float(self.formulas.war_chest(record.nation.cities)['aluminum'])
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
+
+    def render_steel(self, value, record):
+        var = float(self.formulas.war_chest(record.nation.cities)['steel'])
+        try:
+            diff = (value / var) * 100.00
+            if value < var:
+                return format_html(f"<span style='color: red'>{value:,.2f} (%{diff:,.2f})</span>")
+            else:
+                return format_html(f"<span style='color: green'>{value:,.2f} (%{diff:,.2f})</span>")
+        except ZeroDivisionError:
+            return "-"
+
+    def render_ph1(self, value, record):
+        member_nation_object = MemberNation.objects.filter(nation_id=record.nation.nationid).first()
+        if member_nation_object:
+            return f"<@{member_nation_object.discord_member.id}>"
+        else:
+            return "-"
+
+    def render_ph2(self, value, record):
+        value_shown = ''
+        mmr_values = self.formulas.mmr(value)
+        for mmr_value in mmr_values:
+            if mmr_values[mmr_value] != 0:
+                value_shown += f'{round((getattr(record.nation.nationmilitary, mmr_value) / mmr_values[mmr_value]) * 100)}%/'
+            else:
+                value_shown += '-/'
+        value_shown = value_shown[:-1]
+        return value_shown
+
+    def render_ph3(self, value, record):
+        resources = [resource.name for resource in Resources._meta.get_fields()]
+        resources.pop(0)
+        wc_requirements = self.formulas.war_chest(record.nation.cities)
+        value_delta = -1 * wc_requirements.pop('money') + record.money
+        for resource in resources:
+            if resource in wc_requirements:
+                value_delta += (getattr(record, resource) - wc_requirements[resource]) * Market.objects.get(
+                    resource=resource).avgprice
+            else:
+                value_delta += getattr(record, resource) * Market.objects.get(resource=resource).avgprice
+
+        if value_delta < 0:
+            return format_html(f"<span style='color: red'>${value_delta:,.2f}</span>")
+        else:
+            return format_html(f"<span style='color: green'>${value_delta:,.2f}</span>")
+
+    for resource in war_chest_resources:
+        exec(f'{resource} = tables.Column()')

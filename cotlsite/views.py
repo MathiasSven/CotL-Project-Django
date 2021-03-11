@@ -99,7 +99,7 @@ class AllianceMemberAutocomplete(autocomplete.Select2QuerySetView):
         return format_html('<img style="width: {}px; height: {}px;" src="{}"> {}', dimensions[0], dimensions[1], flag_url, item.__str__().replace(" Alliance Member", ""))
 
 
-from pnwdata.tables import TaxTable, WCTable, CityTable, NationGrade, DateTaxTable
+from pnwdata.tables import TaxTable, WCTable, CityTable, NationGrade, DateTaxTable, MilcomTable
 from pnwdata.models import TaxRecord
 from django_tables2 import RequestConfig
 
@@ -123,6 +123,7 @@ def taxes(request, tax_id):
         "tables": tables
     })
 
+
 @login_required(redirect_field_name='state')
 @allowed_users(allowed_roles=['High Government'])
 def income(request, turns):
@@ -136,6 +137,16 @@ def income(request, turns):
 
     return render(request, "cotlsite/tables.html", {
         "tables": tables
+    })
+
+
+@login_required(redirect_field_name='state')
+@allowed_users(allowed_roles=['High Government'])
+def milcom(request):
+    table = MilcomTable()
+    RequestConfig(request, paginate=False).configure(table)
+    return render(request, "cotlsite/tables.html", {
+        "tables": [table]
     })
 
 
