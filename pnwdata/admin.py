@@ -201,7 +201,10 @@ class AllianceConfigAdmin(admin.ModelAdmin):
     form = AllianceConfigForm
 
     def get_readonly_fields(self, request, obj=None):
-        if obj.enabled:
-            return ['enabled']
+        if obj:
+            if obj.enabled:
+                return ['enabled']
+            else:
+                return []
         else:
             return []
