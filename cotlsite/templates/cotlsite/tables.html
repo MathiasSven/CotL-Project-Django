@@ -56,15 +56,16 @@
                     user_popout_element.querySelectorAll('.discriminator')[0].innerHTML = "#" + result['discriminator']
                     let roles = JSON.parse(result['roles'])
                     roles.pop()
-                    console.log(roles)
                     for (const role of roles) {
                         let role_element = document.createElement("div");
                         role_element.classList.add("role")
-                        role_element.innerHTML = role['name']
+                        if (role['color'] == null) {
+                            role['color'] = '#9DA9B4'
+                        }
+                        role_element.innerHTML = `<div class="role-circle" style="background-color: ${role['color']}"></div><div class="role-name">${role['name']}</div>`
                         role_element.style.borderColor = role['color']
                         roles_parent.appendChild(role_element);
                     }
-                    console.log(JSON.parse(result['roles']))
                 })
 
                 e.target.parentNode.insertBefore(user_popout_element, this.nextSibling);

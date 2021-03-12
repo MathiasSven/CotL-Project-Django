@@ -446,7 +446,11 @@ class MilcomTable(tables.Table):
         member_nation_object = MemberNation.objects.filter(nation_id=record.nation.nationid).first()
         if member_nation_object:
             discord_member = member_nation_object.discord_member
-            colour = discord_member.roles.all().order_by('-position').first().colour
+            colours = discord_member.roles.filter(colour__isnull=False)
+            if colours:
+                colour = colours.order_by('-position').first().colour
+            else:
+                colour = "#060607"
             return format_html(f"<span class='discord_user' id='{discord_member.id}' style='color: {colour}'>{discord_member.display_name()}</span>")
         else:
             return "-"
