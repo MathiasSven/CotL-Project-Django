@@ -85,7 +85,7 @@ def member_update(request):
                     tmp_role, _ = Role.objects.get_or_create(role_id=role['id'])
                     tmp_role.name = role['name']
                     tmp_role.position = role['position']
-                    tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
+                    tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}" if role['colour'] else None
                     tmp_role.save()
                     tmp_role_list.append(tmp_role)
 
@@ -144,7 +144,7 @@ def role_create(request):
                 role_id=role['id'],
                 name=role['name'],
                 position=role['position'],
-                colour=f"#{hex(role['colour']).lstrip('0x')}"
+                colour=f"#{hex(role['colour']).lstrip('0x')}" if role['colour'] else None
             )
             return JsonResponse({
                 "POST": "Member creation successful"
@@ -192,10 +192,10 @@ def role_update(request):
                 tmp_role = Role.objects.get(role_id=role['id'])
                 tmp_role.name = role['name']
                 tmp_role.position = role['position']
-                tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}"
+                tmp_role.colour = f"#{hex(role['colour']).lstrip('0x')}" if role['colour'] else None
                 tmp_role.save()
             except Role.DoesNotExist:
-                Role.objects.create(role_id=role['id'], name=role['name'], position=role['position'], colour=f"#{hex(role['colour']).lstrip('0x')}")
+                Role.objects.create(role_id=role['id'], name=role['name'], position=role['position'], colour=f"#{hex(role['colour']).lstrip('0x')}" if role['colour'] else None)
             return JsonResponse({
                 "PUT": "Successful"
             }, status=200)
@@ -228,7 +228,7 @@ def members_bulk(request):
                         role_id=role['id'],
                         name=role['name'],
                         position=role['position'],
-                        colour=f"#{hex(role['colour']).lstrip('0x')}"
+                        colour=f"#{hex(role['colour']).lstrip('0x')}" if role['colour'] else None
                     )
                     tmp_member.roles.add(tmp_role)
 

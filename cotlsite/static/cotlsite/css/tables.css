@@ -20,7 +20,7 @@ table {
     font-size: 16px;
     font-style: normal;
 
-    font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: var(--ff-discord);
 }
 
 .discord_user:hover {
@@ -60,7 +60,7 @@ table {
     animation-timing-function: ease-out;
 
     display: none;
-    font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: var(--ff-discord);
     margin-left: 8px;
 }
 
@@ -90,14 +90,12 @@ table {
 }
 
 .user-popout .header .username {
-    font-weight: 600;
     color: var(--clr-light);
     text-overflow: ellipsis;
     overflow: hidden;
 }
 
 .user-popout .header .discriminator {
-    font-weight: 500;
     color: var(--clr-light);
     opacity: .6;
 }
@@ -123,6 +121,7 @@ table {
 .user-popout .field .value {
     margin-top: 12px;
     position: relative;
+    display: flex;
     flex-wrap: wrap;
 }
 
@@ -136,6 +135,27 @@ table {
     height: 22px;
     margin: 0 4px 4px 0;
     padding: 4px;
+
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+}
+
+.role-circle {
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    margin-right: 4px;
+}
+
+.role-name {
+    max-width: 200px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin-right: 4px;
 }
 
 .context-menu {
@@ -152,7 +172,7 @@ table {
     color: #b9bbbe;
     z-index: 6969;
 
-    font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: var(--ff-discord);
 }
 
 .context-menu .item {

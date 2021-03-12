@@ -10,6 +10,11 @@
     src: url(../fonts/Audrey-Normal.otf);
 }
 
+@font-face {
+    font-family: 'Whitney';
+    src: url(../fonts/whitney-medium.otf);
+}
+
 *,
 *::before,
 *::after {
@@ -19,7 +24,7 @@
 :root {
     --ff-primary: 'Trajan Pro Regular';
     --ff-secondary: 'Audrey Normal';
-    --ff-discord: Whitney, Helvetica Neue, Helvetica, Arial, sans-serif;
+    --ff-discord: 'Whitney';
 
     --fw-reg: 300;
     --fw-bold: 900;

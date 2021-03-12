@@ -86,7 +86,7 @@ m2m_changed.connect(Member.change_roles, sender=Member.roles.through)
 class Role(Group):
     role_id = models.BigIntegerField(primary_key=True)
     position = models.IntegerField(null=True)
-    colour = ColorField()
+    colour = ColorField(null=True)
 
     class Meta:
         ordering = ['-position']
