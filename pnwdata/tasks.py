@@ -47,7 +47,7 @@ def get_transaction(nation_id: int, min_lookup_date: datetime.date, identifier_t
     if not data['data']:
         return None
     else:
-        regex = re.compile(r'[A-Z]+ \((?P<identifier>\d{4,})\)')
+        regex = re.compile(r'[A-Z]+ (?P<identifier>\d{4,})')
         for transaction in data['data']:
             if identifier_type == 'NOTE':
                 match = regex.match(transaction['note'])

@@ -508,7 +508,7 @@ class Request(Resources):
             if self.request_type == "WITHDRAW":
                 new_withdraw_object = Withdraw(**filter_kwargs(Resources, self.__dict__))
                 new_withdraw_object.nation = self.nation
-                transaction = get_transaction(self.nation.nationid, datetime.utcnow().date() - timedelta(days=1), 'NOTE', self.identifier)
+                transaction = get_transaction(self.nation.nationid, datetime.utcnow().date() - timedelta(days=2), 'NOTE', self.identifier)
                 if transaction:
                     new_withdraw_object.tx_id = transaction['tx_id']
                 else:
@@ -524,7 +524,7 @@ class Request(Resources):
         else:
             if self.request_type == "WITHDRAW":
                 self.identifier = int(str(uuid.uuid4().int)[:8])
-            send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} PROCESSING", message=f"{json.dumps(filter_kwargs(Resources, self.__dict__), indent=4)}")
+            # send_message(nation_id=self.nation.nationid, subject=f"{self.request_type} PROCESSING", message=f"{json.dumps(filter_kwargs(Resources, self.__dict__), indent=4)}")
         super(Request, self).save(*args, **kw)
 
     def __str__(self):
