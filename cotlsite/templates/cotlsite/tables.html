@@ -51,7 +51,11 @@
 
                 let url = '/api/discord-member/' + e.target.id;
                 fetch(url, {method: "GET"}).then(response => response.json()).then(result => {
-                    user_popout_element.querySelectorAll('img')[0].src = "https://cdn.discordapp.com/avatars/" + e.target.id + "/" + result['avatar']
+                    let avatar_identifier = "avatars/" + e.target.id + "/" + result['avatar']
+                    if (result['avatar'] == null) {
+                        avatar_identifier = 'embed/avatars/' + result['discriminator'] % 5 + '.png'
+                    }
+                    user_popout_element.querySelectorAll('img')[0].src = "https://cdn.discordapp.com/" + avatar_identifier
                     user_popout_element.querySelectorAll('.username')[0].innerHTML = result['name']
                     user_popout_element.querySelectorAll('.discriminator')[0].innerHTML = "#" + result['discriminator']
                     let roles = JSON.parse(result['roles'])

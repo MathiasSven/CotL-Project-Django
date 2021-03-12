@@ -102,7 +102,7 @@ table {
 
 .user-popout .body {
     overflow: hidden;
-    padding: 16px 0 16px 16px;
+    padding: 16px 16px 16px 16px;
     color: hsla(0, 0%, 100%, .8);
     -webkit-box-flex: 0;
     -ms-flex: 0 1 auto;
