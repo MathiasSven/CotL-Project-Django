@@ -12,3 +12,97 @@
         {% endfor %}
     </div>
 {% endblock %}
+
+{% block footer %}
+    <div class="user-popout">
+        <div class="header"><img src="" alt="avatar">
+            <div class="details">
+                <div class="username"></div>
+                <div class="discriminator"></div>
+                <div class="badge"></div>
+            </div>
+        </div>
+        <div class="body">
+            <div class="field">
+                <div class="title">ROLES</div>
+                <div class="value"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="context-menu" style="display: none">
+        <div class="item">Copy User ID</div>
+    </div>
+
+    <!--suppress JSUnresolvedVariable, JSUnresolvedFunction -->
+    <script>
+        document.addEventListener('click', e => {
+            document.querySelectorAll('.context-menu.active').forEach(e => e.remove());
+            if (e.target.classList.contains('discord_user')) {
+                let user_popout_element = document.getElementsByClassName("user-popout")[0];
+
+                user_popout_element.querySelectorAll('img')[0].src = ''
+                user_popout_element.querySelectorAll('.username')[0].innerHTML = ''
+                user_popout_element.querySelectorAll('.discriminator')[0].innerHTML = ''
+
+                let roles_parent = user_popout_element.getElementsByClassName('value')[0];
+                roles_parent.innerHTML = '';
+
+
+                let url = '/api/discord-member/' + e.target.id;
+                fetch(url, {method: "GET"}).then(response => response.json()).then(result => {
+                    user_popout_element.querySelectorAll('img')[0].src = "https://cdn.discordapp.com/avatars/" + e.target.id + "/" + result['avatar']
+                    user_popout_element.querySelectorAll('.username')[0].innerHTML = result['name']
+                    user_popout_element.querySelectorAll('.discriminator')[0].innerHTML = "#" + result['discriminator']
+                    let roles = JSON.parse(result['roles'])
+                    roles.pop()
+                    console.log(roles)
+                    for (const role of roles) {
+                        let role_element = document.createElement("div");
+                        role_element.classList.add("role")
+                        role_element.innerHTML = role['name']
+                        role_element.style.borderColor = role['color']
+                        roles_parent.appendChild(role_element);
+                    }
+                    console.log(JSON.parse(result['roles']))
+                })
+
+                e.target.parentNode.insertBefore(user_popout_element, this.nextSibling);
+                user_popout_element.classList.add("mounted");
+            } else {
+                let body = document.querySelector('body')
+                let user_popout_element = document.getElementsByClassName("user-popout")[0];
+                body.appendChild(user_popout_element);
+            }
+        });
+
+        document.addEventListener('contextmenu', e => {
+            document.querySelectorAll('.context-menu.active').forEach(e => e.remove());
+            if (e.target.classList.contains('discord_user')) {
+                e.preventDefault();
+                let body = document.querySelector('body')
+                let context_menu_element = document.getElementsByClassName("context-menu")[0].cloneNode(true);
+                context_menu_element.style.removeProperty('display');
+                context_menu_element.style.top = e.pageY + "px";
+                context_menu_element.style.left = e.pageX + "px";
+                context_menu_element.classList.add('active')
+
+                context_menu_element.querySelector('.item').addEventListener('click', () => {
+                    let text = e.target.id;
+                    let tmp_elem = document.createElement("textarea");
+                    document.body.appendChild(tmp_elem);
+                    tmp_elem.value = text;
+                    tmp_elem.select();
+                    tmp_elem.setSelectionRange(0, 99999); /* For mobile devices */
+                    document.execCommand("copy");
+                    document.body.removeChild(tmp_elem);
+                });
+
+                body.appendChild(context_menu_element);
+
+                let user_popout_element = document.getElementsByClassName("user-popout")[0];
+                body.appendChild(user_popout_element);
+            }
+        });
+    </script>
+{% endblock %}

@@ -16,4 +16,5 @@ urlpatterns = [
 
 
     path("select2/alliance-members", views.AllianceMemberAutocomplete.as_view(), name="alliance-members-autocomplete"),
+    path("api/discord-member/<int:user_id>", views.discord_member, name="discord-member"),
 ]

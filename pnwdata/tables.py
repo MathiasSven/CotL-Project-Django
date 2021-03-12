@@ -354,7 +354,7 @@ class MilcomTable(tables.Table):
         super(MilcomTable, self).__init__(q_set)
 
     nation__nationid = tables.Column()
-    ph1 = tables.Column(verbose_name='Discord Ping')
+    ph1 = tables.Column(verbose_name='Discord')
     nation__nation = tables.Column()
     nation__cities = tables.Column()
     war_chest_resources = ['money', 'food', 'uranium', 'gasoline', 'munitions', 'steel', 'aluminum']
@@ -445,7 +445,9 @@ class MilcomTable(tables.Table):
     def render_ph1(self, value, record):
         member_nation_object = MemberNation.objects.filter(nation_id=record.nation.nationid).first()
         if member_nation_object:
-            return f"<@{member_nation_object.discord_member.id}>"
+            discord_member = member_nation_object.discord_member
+            colour = discord_member.roles.all().order_by('-position').first().colour
+            return format_html(f"<span class='discord_user' id='{discord_member.id}' style='color: {colour}'>{discord_member.display_name()}</span>")
         else:
             return "-"
 

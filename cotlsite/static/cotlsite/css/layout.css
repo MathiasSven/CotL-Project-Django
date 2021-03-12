@@ -19,9 +19,13 @@
 :root {
     --ff-primary: 'Trajan Pro Regular';
     --ff-secondary: 'Audrey Normal';
+    --ff-discord: Whitney, Helvetica Neue, Helvetica, Arial, sans-serif;
 
     --fw-reg: 300;
     --fw-bold: 900;
+
+    --clr-discord-background: #303136;
+    --clr-discord-dark: #202225;
 
     --clr-light: #fff;
     --clr-dark: #303030;
@@ -93,7 +97,7 @@ html {
     background-color: #303030;
     border-radius: 4px;
 
-    font-family: Whitney, Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-family: var(--ff-discord);
 
     visibility: hidden;
     opacity: 0;
