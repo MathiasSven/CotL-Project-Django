@@ -14,3 +14,158 @@ table {
     background-color: white;
     border-radius: 10px;
 }
+
+.discord_user {
+    font-weight: 500;
+    font-size: 16px;
+    font-style: normal;
+
+    font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.discord_user:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.discord_user + .user-popout {
+    display: inline-block !important;
+}
+
+@keyframes popout {
+    0% {
+        transform: translateX(10px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+
+.user-popout.mounted {
+    animation-name: popout;
+}
+
+.user-popout {
+    position: absolute;
+    z-index: 6969;
+    background-color: var(--clr-discord-background);
+    box-shadow: 0 2px 10px 0 rgba(0 0 0 0.2), 0 0 0 1px rgba(32 34 37 0.6);
+    width: 250px;
+    border-radius: 5px;
+    overflow: hidden;
+    animation-fill-mode: forwards;
+    animation-duration: .2s;
+    animation-timing-function: ease-out;
+
+    display: none;
+    font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin-left: 8px;
+}
+
+.user-popout .header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--clr-discord-dark);
+    padding: 20px 10px;
+}
+
+.user-popout .header img {
+    user-select: none;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.user-popout .header .details {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.user-popout .header .username {
+    font-weight: 600;
+    color: var(--clr-light);
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.user-popout .header .discriminator {
+    font-weight: 500;
+    color: var(--clr-light);
+    opacity: .6;
+}
+
+.user-popout .body {
+    overflow: hidden;
+    padding: 16px 0 16px 16px;
+    color: hsla(0, 0%, 100%, .8);
+    -webkit-box-flex: 0;
+    -ms-flex: 0 1 auto;
+    flex: 0 1 auto;
+    min-height: 0;
+}
+
+.user-popout .field .title {
+    font-weight: 700;
+    color: #b9bbbe;
+    text-transform: uppercase;
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+
+.user-popout .field .value {
+    margin-top: 12px;
+    position: relative;
+    flex-wrap: wrap;
+}
+
+.role {
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid;
+    border-radius: 11px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 22px;
+    margin: 0 4px 4px 0;
+    padding: 4px;
+}
+
+.context-menu {
+    position: absolute;
+    min-width: 188px;
+    max-width: 320px;
+    border-radius: 4px;
+    padding: 6px 8px;
+    background-color: #18191c;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, .24);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    color: #b9bbbe;
+    z-index: 6969;
+
+    font-family: Whitney, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.context-menu .item {
+    margin: 2px 0;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    border-radius: 2px;
+    min-height: 32px;
+    cursor: pointer;
+}
+
+.context-menu .item:hover {
+    color: var(--clr-light);
+    background-color: rgba(79, 84, 92, .16);
+}

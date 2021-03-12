@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from cotlsite.decorators import allowed_users
 from cotlsite.models import filter_kwargs
 
-from .models import MemberNation
+from .models import MemberNation, Member
 import pnwdata.models as pnwmodels
 
 from discordlogin.models import GeoData
@@ -154,3 +154,20 @@ def milcom(request):
 @allowed_users(allowed_roles=['High Government'])
 def dashboard(request):
     return render(request, "cotlsite/dashboard.html")
+
+
+@login_required(redirect_field_name='state')
+@allowed_users(allowed_roles=['High Government'])
+def discord_member(request, user_id):
+    object = Member.objects.filter(id=user_id)
+    if object:
+        object = object.first()
+        roles = [{'name': role.name, 'color': role.colour, 'position': role.position} for role in object.roles.all().order_by("-position")]
+        data = {
+            "id": object.id,
+            "name": object.name,
+            "discriminator": object.discriminator,
+            "avatar": object.avatar,
+            "roles": json.dumps(roles)
+        }
+        return JsonResponse(data)
