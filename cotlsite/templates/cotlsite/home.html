@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block header %}
+    <div class="blur-overlay"></div>
 
     {% if user.is_authenticated %}
         <img src="https://images.cotl.pw/banners/blessed.png" id="banners" alt="Banner">
@@ -14,9 +15,13 @@
     {% endif %}
 
     <nav>
+        <div class="hamburger">
+            <div class="bar1"></div>
+            <div class="bar2"></div>
+        </div>
         <ul class="nav justify-content-center">
             <li class="nav-item">
-                <a class="nav-link" href="#">Events</a>
+                <a class="nav-link" href="#">Guides</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Members</a>
@@ -33,16 +38,10 @@
         <source src="{% static 'cotlsite/audio/light-from-darkness.mp3' %}" type="audio/mp3">
     </audio>
 
-    {#    <a href="https://discord.gg/29Ymtz" target="_blank"><img src="{% static 'cotlsite/images/discord-button.png' %}" alt="Discord Button"></a>#}
-
-    <a class="aa-symbol-parent" href="https://politicsandwar.com/alliance/id=7452" target="_blank"><img id="aa-symbol" src="{% static 'cotlsite/images/aa-symbol.png' %}" alt="AA Symbol"></a>
-
-    {#    <div class="princess"></div>#}
-
-    <img id="children-of-the-light" src="{% static 'cotlsite/images/children-of-the-light.png' %}" alt="Children of the Light">
-
-    {#    <iframe src="https://discord.com/widget?id=458692561574297660&theme=dark{% if user.is_authenticated %}&username={{ user.id }}{% endif %}" width="350" height="500" allowtransparency="true" frameborder="0"#}
-    {#            sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>#}
+    <div class="home-logo">
+        <a class="aa-symbol-parent" href="https://politicsandwar.com/alliance/id=7452" target="_blank"><img id="aa-symbol" src="{% static 'cotlsite/images/aa-symbol.png' %}" alt="AA Symbol"></a>
+        <img id="children-of-the-light" src="{% static 'cotlsite/images/children-of-the-light.png' %}" alt="Children of the Light">
+    </div>
 
     <button id="play-pause-button">
         <span id="play-button"><i class="fas fa-play"></i></span>
@@ -57,5 +56,5 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    <script src="{% static 'cotlsite/js/index.js' %}"></script>
+    <script src="{% static 'cotlsite/js/home.js' %}"></script>
 {% endblock %}
