@@ -12,3 +12,9 @@ class TradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trade
         fields = '__all__'
+
+
+class MarketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Market
+        fields = '__all__'
