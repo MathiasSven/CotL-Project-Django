@@ -192,8 +192,9 @@ def update_trade_records(records=5000):
     resource_market = {f"{resource[0]}": Market.objects.get(pk=resource[0]) for resource in Market.RESOURCE_TYPE}
 
     repeated_records = 0
+    existing_trade_records = Trade.objects.all().order_by('-trade_id').values_list('trade_id', flat=True)
     for trade in data['trades']:
-        if int(trade['trade_id']) in Trade.objects.all().order_by('-trade_id').values_list('trade_id', flat=True):
+        if int(trade['trade_id']) in existing_trade_records:
             repeated_records += 1
             continue
         offerer_nation_object, _ = Nation.objects.get_or_create(nationid=trade.pop('offerer_nation_id'))

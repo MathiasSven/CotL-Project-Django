@@ -1,6 +1,6 @@
 from rest_framework import permissions, viewsets
 
-from .models import AllianceMember, Trade
+from .models import AllianceMember, Trade, Market
 from .serializers import *
 
 
@@ -18,4 +18,10 @@ class AllianceMemberView(viewsets.ReadOnlyModelViewSet):
 class TradesView(viewsets.ReadOnlyModelViewSet):
     queryset = Trade.objects.all()
     serializer_class = TradeSerializer
+    permissions = [permissions.AllowAny]
+
+
+class MarketView(viewsets.ReadOnlyModelViewSet):
+    queryset = Market.objects.all()
+    serializer_class = MarketSerializer
     permissions = [permissions.AllowAny]
