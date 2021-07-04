@@ -216,7 +216,8 @@ class CityTable(tables.Table):
 
     ph1 = tables.Column(verbose_name='Discord')
 
-    cityprojecttimerturns = tables.Column(verbose_name='City/Project Timer')
+    turns_since_last_city = tables.Column(verbose_name='T.S.L City')
+    turns_since_last_project = tables.Column(verbose_name='T.S.L Project')
 
     nation__cities = tables.Column()
     next_city_cost = FormatColumn(data_type='monetary', verbose_name='Next city cost (MD)')
@@ -236,7 +237,10 @@ class CityTable(tables.Table):
         else:
             return "-"
 
-    def render_cityprojecttimerturns(self, value, record):
+    def render_turns_since_last_city(self, value, record):
+        return format_html(f"<span>{value} Turns</span>")
+
+    def render_turns_since_last_project(self, value, record):
         return format_html(f"<span>{value} Turns</span>")
 
     def render_next_city_cost(self, value, record):
