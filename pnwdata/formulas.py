@@ -24,16 +24,17 @@ class Formulas:
     def infra_unit_price(infra: float) -> float:
         return ((abs(infra - 10) ** 2.2) / 710) + 300
 
+    # noinspection DuplicatedCode
     @staticmethod
     def infra_price(current_infra: float, desired_infra: float, cenciveng=False, adv_engineering_corps=False, urbanization=False) -> float:
         current_infra = round(current_infra, 2)
         desired_infra = round(desired_infra, 2)
         difference = desired_infra - current_infra
         cost_decrease_multiplier = 1 - (cenciveng * 5 + adv_engineering_corps * 5 + urbanization * 5) / 100
-        value = 0
+        value = 0.0
 
         if difference > 10000:
-            return SyntaxError
+            raise SyntaxError
 
         if difference <= 0:
             infra_price = 150
@@ -55,6 +56,45 @@ class Formulas:
 
         else:
             cost_of_chunk = round(Formulas.infra_unit_price(current_infra), 2) * difference
+            value += cost_of_chunk
+            return value * cost_decrease_multiplier
+
+    @staticmethod
+    def land_unit_price(land: float) -> float:
+        return (0.002 * (land - 20) * (land - 20)) + 50
+
+    # noinspection DuplicatedCode
+    @staticmethod
+    def land_price(current_land: float, desired_land: float, arable_land_agency=False, adv_engineering_corps=False, rapid_expansion=False) -> float:
+        current_land = round(current_land, 2)
+        desired_land = round(desired_land, 2)
+        difference = desired_land - current_land
+        cost_decrease_multiplier = 1 - (arable_land_agency * 5 + adv_engineering_corps * 5 + rapid_expansion * 5) / 100
+        value = 0.0
+
+        if difference > 10000:
+            raise SyntaxError
+
+        if difference <= 0:
+            land_price = 50
+            return land_price * difference
+
+        while difference > 500:
+
+            if (difference > 0) and (difference % 500 == 0):
+                cost_of_chunk = round(Formulas.land_unit_price(current_land), 2) * 500
+                value += cost_of_chunk
+                current_land += 500
+                difference -= 500
+
+            if (difference > 500) and (difference % 500 != 0):
+                cost_of_chunk = round(Formulas.land_unit_price(current_land), 2) * (difference % 500)
+                value += cost_of_chunk
+                current_land += difference % 500
+                difference -= difference % 500
+
+        else:
+            cost_of_chunk = round(Formulas.land_unit_price(current_land), 2) * difference
             value += cost_of_chunk
             return value * cost_decrease_multiplier
 
