@@ -180,7 +180,8 @@ class AllianceMember(Resources):
     credits = models.FloatField()
 
     nation = models.OneToOneField(Nation, on_delete=models.CASCADE, primary_key=True)
-    cityprojecttimerturns = models.IntegerField(null=True)
+    turns_since_last_city = models.IntegerField(null=True)
+    turns_since_last_project = models.IntegerField(null=True)
     update_tz = models.IntegerField(null=True)
 
     last_updated = models.DateTimeField(auto_now=True)
