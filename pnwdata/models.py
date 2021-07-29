@@ -399,10 +399,7 @@ class Holdings(Resources):
     def save(self, *args, **kw):
         model_fields = [f.name for f in self._meta.get_fields() if isinstance(f, models.fields.FloatField)]
         projects = {k: v for k, v in self.__dict__.items() if k in model_fields}
-        if sum(projects.values()) <= 0:
-            self.delete()
-        else:
-            super(Holdings, self).save(*args, **kw)
+        super(Holdings, self).save(*args, **kw)
 
     def __str__(self):
         return '%s (%s) Holdings' % (self.nation.nation, self.nation.nationid)
