@@ -143,7 +143,7 @@ def update_alliance_members():
 
 
 @shared_task()
-def update_tax_records(records=100):
+def update_tax_records(records=500):
     login_payload = {
         'email': config.get('pnw', 'EMAIL'),
         'password': config.get('pnw', 'PASSWORD'),
@@ -151,37 +151,38 @@ def update_tax_records(records=100):
     }
     with requests.Session() as s:
         s.post('https://politicsandwar.com/login/', data=login_payload, headers={'User-Agent': 'Mozilla/5.0'})
-        bank_taxes_page = BeautifulSoup(s.post('https://politicsandwar.com/alliance/id=7452&display=banktaxes', data={'maximum': records, 'minimum': 0, 'search': 'Go'}).text, 'html.parser')
-        table = bank_taxes_page.find('table', {"class": "nationtable"})
-        rows = table.find_all('tr')
+        for page in range((records + 100) // 100):
+            bank_taxes_page = BeautifulSoup(s.post('https://politicsandwar.com/alliance/id=7452&display=banktaxes', data={'maximum': page * 100 + 100, 'minimum': page * 100, 'search': 'Go'}).text, 'html.parser')
+            table = bank_taxes_page.find('table', {"class": "nationtable"})
+            rows = table.find_all('tr')
 
-        for row in rows[1:-1]:
-            cols = row.find_all('td')
-            nationid = cols[2].a['href'].split('id=')[1]
+            for row in rows[1:-1]:
+                cols = row.find_all('td')
+                nationid = cols[2].a['href'].split('id=')[1]
 
-            nation_object, _ = Nation.objects.get_or_create(nationid=nationid)
-            date = datetime.strptime(cols[1].text.strip(), '%m/%d/%Y %I:%M %p').replace(tzinfo=timezone.utc)
+                nation_object, _ = Nation.objects.get_or_create(nationid=nationid)
+                date = datetime.strptime(cols[1].text.strip(), '%m/%d/%Y %I:%M %p').replace(tzinfo=timezone.utc)
 
-            tax_record_object = TaxRecord(nation=nation_object, date=date, note=cols[1].img['title'], tax_id=cols[16].text.strip(),
-                                          money=cols[4].text.strip().replace(',', '')[1:],
-                                          food=cols[5].text.strip().replace(',', ''),
-                                          coal=cols[6].text.strip().replace(',', ''),
-                                          oil=cols[7].text.strip().replace(',', ''),
-                                          uranium=cols[8].text.strip().replace(',', ''),
-                                          lead=cols[9].text.strip().replace(',', ''),
-                                          iron=cols[10].text.strip().replace(',', ''),
-                                          bauxite=cols[11].text.strip().replace(',', ''),
-                                          gasoline=cols[12].text.strip().replace(',', ''),
-                                          munitions=cols[13].text.strip().replace(',', ''),
-                                          steel=cols[14].text.strip().replace(',', ''),
-                                          aluminum=cols[15].text.strip().replace(',', ''),
-                                          )
-            try:
-                tax_record_object.validate_unique()
-            except ValidationError:
-                break
-            else:
-                tax_record_object.save()
+                tax_record_object = TaxRecord(nation=nation_object, date=date, note=cols[1].img['title'], tax_id=cols[16].text.strip(),
+                                              money=cols[4].text.strip().replace(',', '')[1:],
+                                              food=cols[5].text.strip().replace(',', ''),
+                                              coal=cols[6].text.strip().replace(',', ''),
+                                              oil=cols[7].text.strip().replace(',', ''),
+                                              uranium=cols[8].text.strip().replace(',', ''),
+                                              lead=cols[9].text.strip().replace(',', ''),
+                                              iron=cols[10].text.strip().replace(',', ''),
+                                              bauxite=cols[11].text.strip().replace(',', ''),
+                                              gasoline=cols[12].text.strip().replace(',', ''),
+                                              munitions=cols[13].text.strip().replace(',', ''),
+                                              steel=cols[14].text.strip().replace(',', ''),
+                                              aluminum=cols[15].text.strip().replace(',', ''),
+                                              )
+                try:
+                    tax_record_object.validate_unique()
+                except ValidationError:
+                    break
+                else:
+                    tax_record_object.save()
 
 
 @shared_task()
