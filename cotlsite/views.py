@@ -176,7 +176,7 @@ def discord_member(request, user_id):
 @csrf_exempt
 def discord_user(request, nationid):
     if request.method == 'GET':
-        member_nation = MemberNation.objects.filter(nation_id=nationid)
+        member_nation = MemberNation.objects.filter(nation_id=nationid).first()
         if member_nation:
             return JsonResponse({
                 'id': member_nation.discord_member.id,
@@ -199,7 +199,7 @@ def discord_user(request, nationid):
 @csrf_exempt
 def linked_nation(request, user_id):
     if request.method == 'GET':
-        member = Member.objects.filter(id=user_id)
+        member = Member.objects.filter(id=user_id).first()
         if member:
             return JsonResponse({
                 'nationid': member.membernation.id,
