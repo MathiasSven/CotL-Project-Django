@@ -171,3 +171,46 @@ def discord_member(request, user_id):
             "roles": json.dumps(roles)
         }
         return JsonResponse(data)
+
+
+@csrf_exempt
+def discord_user(request, nationid):
+    if request.method == 'GET':
+        member_nation = MemberNation.objects.filter(nation_id=nationid)
+        if member_nation:
+            return JsonResponse({
+                'id': member_nation.discord_member.id,
+                'name': member_nation.discord_member.name,
+                'discriminator': member_nation.discord_member.discriminator,
+                'avatar': member_nation.discord_member.avatar,
+                'nick': member_nation.discord_member.nick,
+                'roles': member_nation.discord_member.roles,
+            }, status=200)
+        else:
+            return JsonResponse({
+                "error": "nation not in database"
+            }, status=404)
+    else:
+        return JsonResponse({
+            "error": "must be GET request"
+        }, status=405)
+
+
+@csrf_exempt
+def linked_nation(request, user_id):
+    if request.method == 'GET':
+        member = Member.objects.filter(id=user_id)
+        if member:
+            return JsonResponse({
+                'nationid': member.membernation.id,
+                'nation': member.membernation.nation_name,
+                'leader': member.membernation.leader_name,
+            }, status=200)
+        else:
+            return JsonResponse({
+                "error": "discord user not in database"
+            }, status=404)
+    else:
+        return JsonResponse({
+            "error": "must be GET request"
+        }, status=405)
