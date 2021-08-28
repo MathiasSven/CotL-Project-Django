@@ -184,7 +184,9 @@ def discord_user(request, nationid):
                 'discriminator': member_nation.discord_member.discriminator,
                 'avatar': member_nation.discord_member.avatar,
                 'nick': member_nation.discord_member.nick,
-                'roles': member_nation.discord_member.roles,
+                'roles': [{'role_id': role.role_id,
+                           'position': role.position,
+                           'colour': role.colour} for role in member_nation.discord_member.roles.all().order_by("-position")],
             }, status=200)
         else:
             return JsonResponse({
