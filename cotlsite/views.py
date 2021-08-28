@@ -204,7 +204,7 @@ def linked_nation(request, user_id):
         member = Member.objects.filter(id=user_id).first()
         if member:
             return JsonResponse({
-                'nationid': member.membernation.id,
+                'nationid': member.membernation.nation_id,
                 'nation': member.membernation.nation_name,
                 'leader': member.membernation.leader_name,
             }, status=200)
