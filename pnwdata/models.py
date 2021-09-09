@@ -52,6 +52,9 @@ class Nation(models.Model):
 
     last_updated = models.DateTimeField(auto_now=True)
 
+    def nation_link(self):
+        return f"https://politicsandwar.com/nation/id={self.nationid}"
+
     def __str__(self):
         return '%s (%s)' % (self.nation, self.nationid)
 
