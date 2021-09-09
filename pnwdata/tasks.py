@@ -1,4 +1,6 @@
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -10,10 +12,11 @@ from datetime import datetime, timezone, timedelta
 from celery import shared_task
 from pathlib import Path
 
-from typing import Literal, overload
+from typing import Literal, overload, Optional
 
 from .caller import call_api
 from .models import *
+from cotlsite.models import MemberNation
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 config = configparser.ConfigParser()
@@ -39,7 +42,7 @@ def send_message(nation_id: int, subject: str, message: str):
 
 
 @shared_task()
-def get_transaction(nation_id: int, min_lookup_date: datetime.date, identifier_type: Literal['NOTE', 'TX_ID'], identifier: int) -> dict:
+def get_transaction(nation_id: int, min_lookup_date: datetime.date, identifier_type: Literal['NOTE', 'TX_ID'], identifier: int) -> Optional[dict]:
     import re
     min_date = min_lookup_date.strftime(format='%Y%m%d')
     url = f"https://politicsandwar.com/api/v2/nation-bank-recs/{config.get('pnw', 'API_KEY')}/&nation_id={nation_id}&min_tx_date={min_date}&format=1"
@@ -142,6 +145,24 @@ def update_alliance_members():
     AllianceMember.objects.exclude(nation_id__in=[nation['nationid'] for nation in data['nations']]).delete()
 
 
+@receiver(post_delete, sender=AllianceMember)
+def on_delete_alliance_member(sender, instance: AllianceMember, **kwargs):
+    member_nation = MemberNation.objects.filter(nation_id=instance.nation.nationid).first()
+    discord_member = member_nation.discord_member if member_nation else None
+    url = f"https://discord.com/api/v8/webhooks/{config.get('pnw', 'MOD_WEBHOOK_ID')}/{config.get('pnw', 'MOD_WEBHOOK_TOKEN')}"
+    headers = {'Content-type': 'application/json'}
+    data = {
+        "username": "P&W Mod Logs",
+        "embeds": [
+            {
+                "description": f"**{instance.nation.leader}, leader of [{instance.nation.nation}]({instance.nation.nation_link()}) has left the alliance.\n"
+                               f"Discord User: {f'<@{discord_member.id}>' if discord_member else 'Not Linked'}**",
+            }
+        ],
+    }
+    requests.post(url, json=data, headers=headers)
+
+
 @shared_task()
 def update_tax_records(records=500):
     login_payload = {
@@ -152,7 +173,8 @@ def update_tax_records(records=500):
     with requests.Session() as s:
         s.post('https://politicsandwar.com/login/', data=login_payload, headers={'User-Agent': 'Mozilla/5.0'})
         for page in range((records + 100) // 100):
-            bank_taxes_page = BeautifulSoup(s.post('https://politicsandwar.com/alliance/id=7452&display=banktaxes', data={'maximum': page * 100 + 100, 'minimum': page * 100, 'search': 'Go'}).text, 'html.parser')
+            bank_taxes_page = BeautifulSoup(s.post('https://politicsandwar.com/alliance/id=7452&display=banktaxes', data={'maximum': page * 100 + 100, 'minimum': page * 100, 'search': 'Go'}).text,
+                                            'html.parser')
             table = bank_taxes_page.find('table', {"class": "nationtable"})
             rows = table.find_all('tr')
 
